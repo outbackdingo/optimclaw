@@ -13,13 +13,13 @@ mod tests {
     use chrono::{Duration, Utc};
     use uuid::Uuid;
 
-    use ironclaw::agent::routine::{
+    use optimclaw::agent::routine::{
         Routine, RoutineAction, RoutineGuardrails, RoutineRun, RunStatus, Trigger,
     };
-    use ironclaw::db::Database;
+    use optimclaw::db::Database;
 
     async fn create_test_db() -> (Arc<dyn Database>, tempfile::TempDir) {
-        use ironclaw::db::libsql::LibSqlBackend;
+        use optimclaw::db::libsql::LibSqlBackend;
 
         let temp_dir = tempfile::tempdir().expect("tempdir");
         let db_path = temp_dir.path().join("test.db");

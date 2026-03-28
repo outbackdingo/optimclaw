@@ -7,7 +7,7 @@ use crate::import::{ImportError, ImportOptions};
 
 use super::reader::OpenClawMemoryChunk;
 
-/// Import a single memory chunk into IronClaw.
+/// Import a single memory chunk into OptimClaw.
 pub async fn import_chunk(
     db: &Arc<dyn Database>,
     chunk: &OpenClawMemoryChunk,

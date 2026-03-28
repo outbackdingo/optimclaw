@@ -1,11 +1,11 @@
-# IronClaw E2E Tests
+# OptimClaw E2E Tests
 
-Browser-level end-to-end tests for the IronClaw web gateway using Python + Playwright.
+Browser-level end-to-end tests for the OptimClaw web gateway using Python + Playwright.
 
 ## Prerequisites
 
 - Python 3.11+
-- Rust toolchain (for building ironclaw)
+- Rust toolchain (for building optimclaw)
 - Chromium (installed via Playwright)
 
 ## Setup
@@ -16,9 +16,9 @@ pip install -e .
 playwright install chromium
 ```
 
-## Build ironclaw
+## Build optimclaw
 
-The tests need the ironclaw binary built with libsql support:
+The tests need the optimclaw binary built with libsql support:
 
 ```bash
 cargo build --no-default-features --features libsql
@@ -41,7 +41,7 @@ HEADED=1 pytest tests/e2e/scenarios/test_connection.py -v
 
 Tests start two subprocesses:
 1. **Mock LLM** (`mock_llm.py`) -- fake OpenAI-compat server with canned responses
-2. **IronClaw** -- the real binary with gateway enabled, pointing to the mock LLM
+2. **OptimClaw** -- the real binary with gateway enabled, pointing to the mock LLM
 
 Then Playwright drives a headless Chromium browser against the gateway, making DOM assertions.
 
@@ -68,7 +68,7 @@ Then Playwright drives a headless Chromium browser against the gateway, making D
 
 For tabs that depend on external data (extensions, jobs, memory, routines), use
 Playwright's `page.route()` to intercept the browser's HTTP requests to the
-ironclaw gateway and return deterministic fixture JSON. This avoids needing
+optimclaw gateway and return deterministic fixture JSON. This avoids needing
 real installed binaries, live external services, or complex database setup.
 
 ### Basic pattern

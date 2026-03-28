@@ -625,11 +625,11 @@ impl Agent {
                     ));
                 }
                 // Environment check: restart is only available in Docker containers
-                let in_docker = std::env::var("IRONCLAW_IN_DOCKER")
+                let in_docker = std::env::var("OPTIMCLAW_IN_DOCKER")
                     .map(|v| v.to_lowercase() == "true")
                     .unwrap_or(false);
 
-                tracing::debug!("[commands::restart] IRONCLAW_IN_DOCKER={}", in_docker);
+                tracing::debug!("[commands::restart] OPTIMCLAW_IN_DOCKER={}", in_docker);
 
                 if !in_docker {
                     tracing::warn!(
@@ -637,7 +637,7 @@ impl Agent {
                     );
                     return Ok(SubmissionResult::error(
                         "Restart is not available in this environment. \
-                         The IRONCLAW_IN_DOCKER environment variable must be set to 'true' for Docker deployments."
+                         The OPTIMCLAW_IN_DOCKER environment variable must be set to 'true' for Docker deployments."
                             .to_string(),
                     ));
                 }
@@ -976,7 +976,7 @@ impl Agent {
         let model_owned = model.to_string();
         let backend = self.deps.llm_backend.clone();
         if let Err(e) = tokio::task::spawn_blocking(move || {
-            // 2a. Update the backend-specific model env var in ~/.ironclaw/.env.
+            // 2a. Update the backend-specific model env var in ~/.optimclaw/.env.
             //
             // Env vars have the HIGHEST priority in LlmConfig::resolve_model()
             // (env var > TOML > DB > default). If the .env file has e.g.
@@ -988,7 +988,7 @@ impl Agent {
 
             // Only update the .env file if the var is actually set there
             // (avoid injecting new vars the user never configured).
-            let env_path = crate::bootstrap::ironclaw_env_path();
+            let env_path = crate::bootstrap::optimclaw_env_path();
             let env_has_var = std::fs::read_to_string(&env_path)
                 .ok()
                 .is_some_and(|content| {

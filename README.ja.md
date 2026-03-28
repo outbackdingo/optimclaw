@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="ironclaw.png?v=2" alt="IronClaw" width="200"/>
+  <img src="optimclaw.png?v=2" alt="OptimClaw" width="200"/>
 </p>
 
-<h1 align="center">IronClaw</h1>
+<h1 align="center">OptimClaw</h1>
 
 <p align="center">
   <strong>あなたの味方になる、安全なパーソナルAIアシスタント</strong>
@@ -10,8 +10,8 @@
 
 <p align="center">
   <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache%202.0-blue.svg" alt="License: MIT OR Apache-2.0" /></a>
-  <a href="https://t.me/ironclawAI"><img src="https://img.shields.io/badge/Telegram-%40ironclawAI-26A5E4?style=flat&logo=telegram&logoColor=white" alt="Telegram: @ironclawAI" /></a>
-  <a href="https://www.reddit.com/r/ironclawAI/"><img src="https://img.shields.io/badge/Reddit-r%2FironclawAI-FF4500?style=flat&logo=reddit&logoColor=white" alt="Reddit: r/ironclawAI" /></a>
+  <a href="https://t.me/optimclawAI"><img src="https://img.shields.io/badge/Telegram-%40optimclawAI-26A5E4?style=flat&logo=telegram&logoColor=white" alt="Telegram: @optimclawAI" /></a>
+  <a href="https://www.reddit.com/r/optimclawAI/"><img src="https://img.shields.io/badge/Reddit-r%2FoptimclawAI-FF4500?style=flat&logo=reddit&logoColor=white" alt="Reddit: r/optimclawAI" /></a>
 </p>
 
 <p align="center">
@@ -34,16 +34,16 @@
 
 ## フィロソフィー
 
-IronClawはシンプルな原則に基づいて構築されています：**あなたのAIアシスタントは、あなたのために働くべきであり、あなたに不利益をもたらすべきではありません。**
+OptimClawはシンプルな原則に基づいて構築されています：**あなたのAIアシスタントは、あなたのために働くべきであり、あなたに不利益をもたらすべきではありません。**
 
-AIシステムがデータの取り扱いについて不透明になり、企業の利益に沿って調整されることが増えている世界で、IronClawは異なるアプローチを取ります：
+AIシステムがデータの取り扱いについて不透明になり、企業の利益に沿って調整されることが増えている世界で、OptimClawは異なるアプローチを取ります：
 
 - **あなたのデータはあなたのもの** - すべての情報はローカルに保存・暗号化され、あなたの管理下から離れることはありません
 - **設計段階からの透明性** - オープンソース、監査可能、隠れたテレメトリやデータ収集なし
 - **自己拡張する能力** - ベンダーのアップデートを待たずに、新しいツールをその場で構築
 - **多層防御** - 複数のセキュリティレイヤーがプロンプトインジェクションやデータ流出から保護
 
-IronClawは、個人生活にも仕事にも本当に信頼できるAIアシスタントです。
+OptimClawは、個人生活にも仕事にも本当に信頼できるAIアシスタントです。
 
 ## 機能
 
@@ -66,7 +66,7 @@ IronClawは、個人生活にも仕事にも本当に信頼できるAIアシス�
 
 ### 自己拡張
 
-- **動的ツール構築** - 必要なものを説明すると、IronClawがWASMツールとして構築
+- **動的ツール構築** - 必要なものを説明すると、OptimClawがWASMツールとして構築
 - **MCPプロトコル** - Model Context Protocolサーバーに接続して追加機能を利用
 - **プラグインアーキテクチャ** - 再起動なしで新しいWASMツールやチャネルを追加
 
@@ -86,12 +86,12 @@ IronClawは、個人生活にも仕事にも本当に信頼できるAIアシス�
 
 ## ダウンロードまたはビルド
 
-最新のアップデートは[リリースページ](https://github.com/nearai/ironclaw/releases/)をご覧ください。
+最新のアップデートは[リリースページ](https://github.com/nearai/optimclaw/releases/)をご覧ください。
 
 <details>
   <summary>Windowsインストーラーでインストール（Windows）</summary>
 
-[Windowsインストーラー](https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-x86_64-pc-windows-msvc.msi)をダウンロードして実行してください。
+[Windowsインストーラー](https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-x86_64-pc-windows-msvc.msi)をダウンロードして実行してください。
 
 </details>
 
@@ -99,7 +99,7 @@ IronClawは、個人生活にも仕事にも本当に信頼できるAIアシス�
   <summary>PowerShellスクリプトでインストール（Windows）</summary>
 
 ```sh
-irm https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.ps1 | iex
+irm https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-installer.ps1 | iex
 ```
 
 </details>
@@ -108,7 +108,7 @@ irm https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-install
   <summary>シェルスクリプトでインストール（macOS、Linux、Windows/WSL）</summary>
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-installer.sh | sh
 ```
 </details>
 
@@ -116,7 +116,7 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/ironclaw/release
   <summary>Homebrewでインストール（macOS/Linux）</summary>
 
 ```sh
-brew install ironclaw
+brew install optimclaw
 ```
 
 </details>
@@ -128,8 +128,8 @@ brew install ironclaw
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/nearai/ironclaw.git
-cd ironclaw
+git clone https://github.com/nearai/optimclaw.git
+cd optimclaw
 
 # ビルド
 cargo build --release
@@ -146,25 +146,25 @@ cargo test
 
 ```bash
 # データベースを作成
-createdb ironclaw
+createdb optimclaw
 
 # pgvectorを有効化
-psql ironclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
+psql optimclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
 ## 設定
 
-セットアップウィザードを実行してIronClawを設定します：
+セットアップウィザードを実行してOptimClawを設定します：
 
 ```bash
-ironclaw onboard
+optimclaw onboard
 ```
 
-ウィザードは、データベース接続、NEAR AI認証（ブラウザOAuth経由）、シークレットの暗号化（システムキーチェーンを使用）を処理します。設定は接続されたデータベースに永続化されます。ブートストラップ変数（例：`DATABASE_URL`、`LLM_BACKEND`）は、データベース接続前に利用できるよう`~/.ironclaw/.env`に書き込まれます。
+ウィザードは、データベース接続、NEAR AI認証（ブラウザOAuth経由）、シークレットの暗号化（システムキーチェーンを使用）を処理します。設定は接続されたデータベースに永続化されます。ブートストラップ変数（例：`DATABASE_URL`、`LLM_BACKEND`）は、データベース接続前に利用できるよう`~/.optimclaw/.env`に書き込まれます。
 
 ### 代替LLMプロバイダー
 
-IronClawはデフォルトでNEAR AIを使用しますが、多くのLLMプロバイダーをすぐに利用できます。組み込みプロバイダーには**Anthropic**、**OpenAI**、**Google Gemini**、**MiniMax**、**Mistral**、**Ollama**（ローカル）が含まれます。**OpenRouter**（300以上のモデル）、**Together AI**、**Fireworks AI**、セルフホストサーバー（**vLLM**、**LiteLLM**）などのOpenAI互換サービスもサポートされています。
+OptimClawはデフォルトでNEAR AIを使用しますが、多くのLLMプロバイダーをすぐに利用できます。組み込みプロバイダーには**Anthropic**、**OpenAI**、**Google Gemini**、**MiniMax**、**Mistral**、**Ollama**（ローカル）が含まれます。**OpenRouter**（300以上のモデル）、**Together AI**、**Fireworks AI**、セルフホストサーバー（**vLLM**、**LiteLLM**）などのOpenAI互換サービスもサポートされています。
 
 ウィザードでプロバイダーを選択するか、環境変数を直接設定してください：
 
@@ -184,7 +184,7 @@ LLM_MODEL=anthropic/claude-sonnet-4
 
 ## セキュリティ
 
-IronClawは、データを保護し悪用を防ぐために多層防御を実装しています。
+OptimClawは、データを保護し悪用を防ぐために多層防御を実装しています。
 
 ### WASMサンドボックス
 
@@ -280,13 +280,13 @@ WASM ──► 許可リスト ──► リーク    ──► 認証情報 ─
 
 ```bash
 # 初回セットアップ（データベース、認証などを設定）
-ironclaw onboard
+optimclaw onboard
 
 # インタラクティブREPLを起動
 cargo run
 
 # デバッグログ付き
-RUST_LOG=ironclaw=debug cargo run
+RUST_LOG=optimclaw=debug cargo run
 ```
 
 ## 開発
@@ -299,7 +299,7 @@ cargo fmt
 cargo clippy --all --benches --tests --examples --all-features
 
 # テスト実行
-createdb ironclaw_test
+createdb optimclaw_test
 cargo test
 
 # 特定のテストを実行
@@ -311,7 +311,7 @@ cargo test test_name
 
 ## OpenClawの系譜
 
-IronClawは[OpenClaw](https://github.com/openclaw/openclaw)にインスパイアされたRust再実装です。完全な対応表は[FEATURE_PARITY.md](FEATURE_PARITY.md)をご覧ください。
+OptimClawは[OpenClaw](https://github.com/openclaw/openclaw)にインスパイアされたRust再実装です。完全な対応表は[FEATURE_PARITY.md](FEATURE_PARITY.md)をご覧ください。
 
 主な違い：
 

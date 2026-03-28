@@ -15,8 +15,8 @@ use futures::StreamExt;
 use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_stream::wrappers::ReceiverStream;
 
-use ironclaw::channels::{Channel, IncomingMessage, MessageStream, OutgoingResponse, StatusUpdate};
-use ironclaw::error::ChannelError;
+use optimclaw::channels::{Channel, IncomingMessage, MessageStream, OutgoingResponse, StatusUpdate};
+use optimclaw::error::ChannelError;
 
 // ---------------------------------------------------------------------------
 // TestChannel

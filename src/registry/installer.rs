@@ -5,7 +5,7 @@ use std::path::{Component, Path, PathBuf};
 
 use tokio::fs;
 
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::registry::catalog::RegistryError;
 use crate::registry::manifest::{BundleDefinition, ExtensionManifest, ManifestKind, SourceSpec};
 
@@ -29,7 +29,7 @@ fn should_attempt_source_fallback(err: &RegistryError) -> bool {
         // Version-pinned URLs (`releases/download/vX.Y.Z/`) point to an immutable
         // asset; a mismatch there is genuinely suspicious and remains a hard block.
         RegistryError::ChecksumMismatch { url, .. } => {
-            url.contains("github.com/nearai/ironclaw/releases/latest/")
+            url.contains("github.com/nearai/optimclaw/releases/latest/")
         }
         // Never fall back for these — they signal a structural problem or a
         // deliberate "already done" state, not a transient artifact issue.
@@ -202,9 +202,9 @@ pub struct InstallOutcome {
 pub struct RegistryInstaller {
     /// Root of the repo (parent of `registry/`), used to resolve `source.dir`.
     repo_root: PathBuf,
-    /// Directory for installed tools (`~/.ironclaw/tools/`).
+    /// Directory for installed tools (`~/.optimclaw/tools/`).
     tools_dir: PathBuf,
-    /// Directory for installed channels (`~/.ironclaw/channels/`).
+    /// Directory for installed channels (`~/.optimclaw/channels/`).
     channels_dir: PathBuf,
 }
 
@@ -219,7 +219,7 @@ impl RegistryInstaller {
 
     /// Default installer using standard paths.
     pub fn with_defaults(repo_root: PathBuf) -> Self {
-        let base_dir = ironclaw_base_dir();
+        let base_dir = optimclaw_base_dir();
         Self {
             repo_root,
             tools_dir: base_dir.join("tools"),
@@ -264,7 +264,7 @@ impl RegistryInstaller {
             .map_err(RegistryError::Io)?;
 
         // Use manifest.name for installed filenames so discovery, auth, and
-        // CLI commands (`ironclaw tool auth <name>`) all agree on the stem.
+        // CLI commands (`optimclaw tool auth <name>`) all agree on the stem.
         let target_wasm = target_dir.join(format!("{}.wasm", manifest.name));
 
         // Check if already exists
@@ -593,7 +593,7 @@ impl RegistryInstaller {
         let mut auth_hints = Vec::new();
         if let Some(shared) = &bundle.shared_auth {
             auth_hints.push(format!(
-                "Bundle uses shared auth '{}'. Run `ironclaw tool auth <any-member>` to authenticate all members.",
+                "Bundle uses shared auth '{}'. Run `optimclaw tool auth <any-member>` to authenticate all members.",
                 shared
             ));
         }
@@ -851,8 +851,8 @@ mod tests {
     fn test_installer_creation() {
         let installer = RegistryInstaller::new(
             PathBuf::from("/repo"),
-            PathBuf::from("/home/.ironclaw/tools"),
-            PathBuf::from("/home/.ironclaw/channels"),
+            PathBuf::from("/home/.optimclaw/tools"),
+            PathBuf::from("/home/.optimclaw/channels"),
         );
         assert_eq!(installer.repo_root, PathBuf::from("/repo"));
     }
@@ -914,7 +914,7 @@ mod tests {
             "demo",
             "tools-src/demo",
             Some(
-                "http://github.com/nearai/ironclaw/releases/latest/download/demo.wasm".to_string(),
+                "http://github.com/nearai/optimclaw/releases/latest/download/demo.wasm".to_string(),
             ),
             None,
         );
@@ -967,7 +967,7 @@ mod tests {
             "demo",
             "tools-src/demo",
             Some(
-                "https://github.com/nearai/ironclaw/releases/latest/download/demo-wasm32-wasip2.tar.gz".to_string(),
+                "https://github.com/nearai/optimclaw/releases/latest/download/demo-wasm32-wasip2.tar.gz".to_string(),
             ),
             None, // sha256 = null
         );
@@ -984,7 +984,7 @@ mod tests {
     #[test]
     fn test_should_attempt_source_fallback_policy() {
         let download = RegistryError::DownloadFailed {
-            url: "https://github.com/nearai/ironclaw/releases/latest/download/demo.wasm"
+            url: "https://github.com/nearai/optimclaw/releases/latest/download/demo.wasm"
                 .to_string(),
             reason: "http status 404".to_string(),
         };
@@ -1152,7 +1152,7 @@ mod tests {
     #[test]
     fn test_source_fallback_on_latest_url_mismatch() {
         let latest_mismatch = RegistryError::ChecksumMismatch {
-            url: "https://github.com/nearai/ironclaw/releases/latest/download/github-wasm32-wasip2.tar.gz".to_string(),
+            url: "https://github.com/nearai/optimclaw/releases/latest/download/github-wasm32-wasip2.tar.gz".to_string(),
             expected_sha256: "aaa".to_string(),
             actual_sha256: "bbb".to_string(),
         };
@@ -1162,7 +1162,7 @@ mod tests {
         );
 
         let pinned_mismatch = RegistryError::ChecksumMismatch {
-            url: "https://github.com/nearai/ironclaw/releases/download/v0.7.0/github-0.2.0-wasm32-wasip2.tar.gz".to_string(),
+            url: "https://github.com/nearai/optimclaw/releases/download/v0.7.0/github-0.2.0-wasm32-wasip2.tar.gz".to_string(),
             expected_sha256: "aaa".to_string(),
             actual_sha256: "bbb".to_string(),
         };

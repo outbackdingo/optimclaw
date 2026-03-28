@@ -9,9 +9,9 @@ mod support;
 mod advanced {
     use std::time::Duration;
 
-    use ironclaw::agent::routine::Trigger;
-    use ironclaw::channels::IncomingMessage;
-    use ironclaw::db::Database;
+    use optimclaw::agent::routine::Trigger;
+    use optimclaw::channels::IncomingMessage;
+    use optimclaw::db::Database;
 
     use crate::support::cleanup::CleanupGuard;
     use crate::support::test_rig::TestRigBuilder;
@@ -27,7 +27,7 @@ mod advanced {
         db: &std::sync::Arc<dyn Database>,
         routine_id: uuid::Uuid,
         timeout: Duration,
-    ) -> Vec<ironclaw::agent::routine::RoutineRun> {
+    ) -> Vec<optimclaw::agent::routine::RoutineRun> {
         let deadline = tokio::time::Instant::now() + timeout;
         loop {
             let runs = db
@@ -78,8 +78,8 @@ mod advanced {
 
     #[tokio::test]
     async fn user_steering() {
-        let _cleanup = CleanupGuard::new().file("/tmp/ironclaw_steer_test.txt");
-        let _ = std::fs::remove_file("/tmp/ironclaw_steer_test.txt");
+        let _cleanup = CleanupGuard::new().file("/tmp/optimclaw_steer_test.txt");
+        let _ = std::fs::remove_file("/tmp/optimclaw_steer_test.txt");
 
         let trace = LlmTrace::from_file(format!("{FIXTURES}/steering.json")).unwrap();
         let rig = TestRigBuilder::new()
@@ -94,7 +94,7 @@ mod advanced {
         assert!(!all_responses[1].is_empty(), "Turn 2: no response");
 
         // Extra: verify file on disk after steering.
-        let content = std::fs::read_to_string("/tmp/ironclaw_steer_test.txt")
+        let content = std::fs::read_to_string("/tmp/optimclaw_steer_test.txt")
             .expect("steer test file should exist");
         assert_eq!(
             content, "goodbye",
@@ -118,8 +118,8 @@ mod advanced {
 
     #[tokio::test]
     async fn tool_error_recovery() {
-        let _cleanup = CleanupGuard::new().file("/tmp/ironclaw_recovery_test.txt");
-        let _ = std::fs::remove_file("/tmp/ironclaw_recovery_test.txt");
+        let _cleanup = CleanupGuard::new().file("/tmp/optimclaw_recovery_test.txt");
+        let _ = std::fs::remove_file("/tmp/optimclaw_recovery_test.txt");
 
         let trace = LlmTrace::from_file(format!("{FIXTURES}/tool_error_recovery.json")).unwrap();
         let rig = TestRigBuilder::new()
@@ -143,7 +143,7 @@ mod advanced {
         );
 
         // The second write should have succeeded on disk.
-        let content = std::fs::read_to_string("/tmp/ironclaw_recovery_test.txt")
+        let content = std::fs::read_to_string("/tmp/optimclaw_recovery_test.txt")
             .expect("recovery file should exist");
         assert_eq!(content, "recovered successfully");
 
@@ -163,7 +163,7 @@ mod advanced {
 
     #[tokio::test]
     async fn long_tool_chain() {
-        let test_dir = "/tmp/ironclaw_chain_test";
+        let test_dir = "/tmp/optimclaw_chain_test";
         let _cleanup = CleanupGuard::new().dir(test_dir);
         let _ = std::fs::remove_dir_all(test_dir);
         std::fs::create_dir_all(test_dir).unwrap();
@@ -176,7 +176,7 @@ mod advanced {
             .await;
 
         rig.send_message(
-            "Create a daily log at /tmp/ironclaw_chain_test/log.md, \
+            "Create a daily log at /tmp/optimclaw_chain_test/log.md, \
              update it with afternoon activities, write an end-of-day summary, \
              then read both files and give me a report.",
         )
@@ -300,7 +300,7 @@ mod advanced {
 
     #[tokio::test]
     async fn routine_news_digest() {
-        use ironclaw::llm::recording::{HttpExchange, HttpExchangeRequest, HttpExchangeResponse};
+        use optimclaw::llm::recording::{HttpExchange, HttpExchangeRequest, HttpExchangeResponse};
 
         let trace = LlmTrace::from_file(format!("{FIXTURES}/routine_news_digest.json")).unwrap();
 
@@ -586,7 +586,7 @@ mod advanced {
     #[tokio::test]
     async fn mcp_extension_lifecycle() {
         use crate::support::mock_mcp_server::{MockToolResponse, start_mock_mcp_server};
-        use ironclaw::extensions::{AuthHint, ExtensionKind, ExtensionSource, RegistryEntry};
+        use optimclaw::extensions::{AuthHint, ExtensionKind, ExtensionSource, RegistryEntry};
         const TEST_USER_ID: &str = "test-user";
 
         // 1. Start mock MCP server with pre-configured tool responses.
@@ -656,7 +656,7 @@ mod advanced {
             .secrets()
             .create(
                 TEST_USER_ID,
-                ironclaw::secrets::CreateSecretParams::new(secret_name, "mock-access-token")
+                optimclaw::secrets::CreateSecretParams::new(secret_name, "mock-access-token")
                     .with_provider("mcp:mock-notion".to_string()),
             )
             .await
@@ -857,7 +857,7 @@ mod advanced {
     /// clears BOOTSTRAP.md, and the workspace reflects all writes.
     #[tokio::test]
     async fn bootstrap_onboarding_clears_bootstrap() {
-        use ironclaw::workspace::paths;
+        use optimclaw::workspace::paths;
 
         let trace = LlmTrace::from_file(format!("{FIXTURES}/bootstrap_onboarding.json")).unwrap();
         let rig = TestRigBuilder::new()
@@ -942,7 +942,7 @@ mod advanced {
             .await
             .expect("read profile for deser test");
         let deser_result =
-            serde_json::from_str::<ironclaw::profile::PsychographicProfile>(&stored.content);
+            serde_json::from_str::<optimclaw::profile::PsychographicProfile>(&stored.content);
         assert!(
             deser_result.is_ok(),
             "profile should deserialize: {:?}\ncontent: {:?}",

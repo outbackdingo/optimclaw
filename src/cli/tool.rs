@@ -10,13 +10,13 @@ use std::sync::Arc;
 use clap::Subcommand;
 use tokio::fs;
 
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::secrets::{CreateSecretParams, SecretsStore};
 use crate::tools::wasm::{CapabilitiesFile, compute_binary_hash};
 
 /// Default tools directory.
 fn default_tools_dir() -> PathBuf {
-    ironclaw_base_dir().join("tools")
+    optimclaw_base_dir().join("tools")
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -34,7 +34,7 @@ pub enum ToolCommand {
         #[arg(long)]
         capabilities: Option<PathBuf>,
 
-        /// Target directory for installation (default: ~/.ironclaw/tools/)
+        /// Target directory for installation (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         target: Option<PathBuf>,
 
@@ -53,7 +53,7 @@ pub enum ToolCommand {
 
     /// List installed tools
     List {
-        /// Directory to list tools from (default: ~/.ironclaw/tools/)
+        /// Directory to list tools from (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         dir: Option<PathBuf>,
 
@@ -67,7 +67,7 @@ pub enum ToolCommand {
         /// Name of the tool to remove
         name: String,
 
-        /// Directory to remove tool from (default: ~/.ironclaw/tools/)
+        /// Directory to remove tool from (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         dir: Option<PathBuf>,
     },
@@ -77,7 +77,7 @@ pub enum ToolCommand {
         /// Name of the tool or path to .wasm file
         name_or_path: String,
 
-        /// Directory to look for tool (default: ~/.ironclaw/tools/)
+        /// Directory to look for tool (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         dir: Option<PathBuf>,
 
@@ -91,7 +91,7 @@ pub enum ToolCommand {
         /// Name of the tool
         name: String,
 
-        /// Directory to look for tool (default: ~/.ironclaw/tools/)
+        /// Directory to look for tool (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         dir: Option<PathBuf>,
 
@@ -105,7 +105,7 @@ pub enum ToolCommand {
         /// Name of the tool
         name: String,
 
-        /// Directory to look for tool (default: ~/.ironclaw/tools/)
+        /// Directory to look for tool (default: ~/.optimclaw/tools/)
         #[arg(short, long)]
         dir: Option<PathBuf>,
 
@@ -304,7 +304,7 @@ async fn list_tools(dir: Option<PathBuf>, verbose: bool) -> anyhow::Result<()> {
 
     if !tools_dir.exists() {
         println!("No tools directory found at {}", tools_dir.display());
-        println!("Install a tool with: ironclaw tool install <path>");
+        println!("Install a tool with: optimclaw tool install <path>");
         return Ok(());
     }
 
@@ -1195,7 +1195,7 @@ async fn setup_tool(name: String, dir: Option<PathBuf>, user_id: String) -> anyh
         anyhow::anyhow!(
             "Tool '{}' has no setup configuration.\n\
              The tool may not require setup, or setup is not defined.\n\
-             Try 'ironclaw tool auth {}' for OAuth-based authentication.",
+             Try 'optimclaw tool auth {}' for OAuth-based authentication.",
             name,
             name
         )
@@ -1302,7 +1302,7 @@ mod tests {
     #[test]
     fn test_default_tools_dir() {
         let dir = default_tools_dir();
-        assert!(dir.to_string_lossy().contains(".ironclaw"));
+        assert!(dir.to_string_lossy().contains(".optimclaw"));
         assert!(dir.to_string_lossy().contains("tools"));
     }
 

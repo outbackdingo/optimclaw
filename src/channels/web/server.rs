@@ -27,7 +27,7 @@ use tower_http::set_header::SetResponseHeaderLayer;
 use uuid::Uuid;
 
 use crate::agent::SessionManager;
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::channels::IncomingMessage;
 use crate::channels::relay::DEFAULT_RELAY_NAME;
 use crate::channels::web::auth::{
@@ -838,7 +838,7 @@ fn oauth_error_page(label: &str) -> axum::response::Response {
 /// redirect the user's browser here. The `state` query parameter correlates
 /// the callback with a pending OAuth flow registered by `start_wasm_oauth()`.
 ///
-/// Used on hosted instances where `IRONCLAW_OAUTH_CALLBACK_URL` points to
+/// Used on hosted instances where `OPTIMCLAW_OAUTH_CALLBACK_URL` points to
 /// the gateway (e.g., `https://kind-deer.agent1.near.ai/oauth/callback`).
 /// Local/desktop mode continues to use the TCP listener on port 9876.
 async fn oauth_callback_handler(
@@ -859,14 +859,14 @@ async fn oauth_callback_handler(
     let state_param = match params.get("state") {
         Some(s) if !s.is_empty() => s.clone(),
         _ => {
-            return oauth_error_page("IronClaw");
+            return oauth_error_page("OptimClaw");
         }
     };
 
     let code = match params.get("code") {
         Some(c) if !c.is_empty() => c.clone(),
         _ => {
-            return oauth_error_page("IronClaw");
+            return oauth_error_page("OptimClaw");
         }
     };
 
@@ -874,7 +874,7 @@ async fn oauth_callback_handler(
     let ext_mgr = match state.extension_manager.as_ref() {
         Some(mgr) => mgr,
         None => {
-            return oauth_error_page("IronClaw");
+            return oauth_error_page("OptimClaw");
         }
     };
 
@@ -888,7 +888,7 @@ async fn oauth_callback_handler(
                 "OAuth callback received with malformed state"
             );
             clear_auth_mode(&state, &state.owner_id).await;
-            return oauth_error_page("IronClaw");
+            return oauth_error_page("OptimClaw");
         }
     };
     let lookup_key = decoded_state.flow_id.clone();
@@ -909,7 +909,7 @@ async fn oauth_callback_handler(
                 lookup_key = %redacted_lookup_key,
                 "OAuth callback received with unknown or expired state"
             );
-            return oauth_error_page("IronClaw");
+            return oauth_error_page("OptimClaw");
         }
     };
 
@@ -1338,7 +1338,7 @@ async fn slack_relay_oauth_callback_handler(
         axum::response::Html(
             "<html><body style='font-family: system-ui; text-align: center; padding: 60px;'>\
              <h2>Slack Connected!</h2>\
-             <p>You can close this tab and return to IronClaw.</p>\
+             <p>You can close this tab and return to OptimClaw.</p>\
              <script>window.close()</script>\
              </body></html>"
                 .to_string(),
@@ -2235,7 +2235,7 @@ async fn extensions_install_handler(
                 crate::extensions::ExtensionSource::WasmBuildable { .. } => {
                     format!(
                         "'{}' requires building from source. \
-                         Run `ironclaw registry install {}` from the CLI.",
+                         Run `optimclaw registry install {}` from the CLI.",
                         req.name, req.name
                     )
                 }
@@ -2442,7 +2442,7 @@ async fn verify_project_ownership(state: &GatewayState, project_id: &str, user_i
     }
 }
 
-/// Shared logic: resolve the file inside `~/.ironclaw/projects/{project_id}/`,
+/// Shared logic: resolve the file inside `~/.optimclaw/projects/{project_id}/`,
 /// guard against path traversal, and stream the content with the right MIME type.
 async fn serve_project_file(project_id: &str, path: &str) -> axum::response::Response {
     // Reject project_id values that could escape the projects directory.
@@ -2454,7 +2454,7 @@ async fn serve_project_file(project_id: &str, path: &str) -> axum::response::Res
         return (StatusCode::BAD_REQUEST, "Invalid project ID").into_response();
     }
 
-    let base = ironclaw_base_dir().join("projects").join(project_id);
+    let base = optimclaw_base_dir().join("projects").join(project_id);
 
     let file_path = base.join(path);
 
@@ -2901,7 +2901,7 @@ async fn gateway_status_handler(
         (None, None, None)
     };
 
-    let restart_enabled = std::env::var("IRONCLAW_IN_DOCKER")
+    let restart_enabled = std::env::var("OPTIMCLAW_IN_DOCKER")
         .map(|v| v.to_lowercase() == "true")
         .unwrap_or(false);
 
@@ -4065,8 +4065,8 @@ mod tests {
         // sees a stable proxy URL/token configuration throughout the test.
         let _env_guard = crate::config::helpers::lock_env();
         let _exchange_url_guard =
-            set_env_var("IRONCLAW_OAUTH_EXCHANGE_URL", Some(&proxy.base_url()));
-        let _proxy_auth_guard = set_env_var("IRONCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
+            set_env_var("OPTIMCLAW_OAUTH_EXCHANGE_URL", Some(&proxy.base_url()));
+        let _proxy_auth_guard = set_env_var("OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", Some("gateway-test-token"));
 
         let secrets = test_secrets_store();
@@ -4162,9 +4162,9 @@ mod tests {
         // sees a stable proxy URL/token configuration throughout the test.
         let _env_guard = crate::config::helpers::lock_env();
         let _exchange_url_guard =
-            set_env_var("IRONCLAW_OAUTH_EXCHANGE_URL", Some(&proxy.base_url()));
+            set_env_var("OPTIMCLAW_OAUTH_EXCHANGE_URL", Some(&proxy.base_url()));
         let _proxy_auth_guard = set_env_var(
-            "IRONCLAW_OAUTH_PROXY_AUTH_TOKEN",
+            "OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN",
             Some("shared-oauth-proxy-secret"),
         );
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", None);

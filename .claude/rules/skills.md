@@ -11,8 +11,8 @@ SKILL.md files extend the agent's prompt with domain-specific instructions. Each
 
 | Trust Level | Source | Tool Access |
 |-------------|--------|-------------|
-| **Trusted** | User-placed in `~/.ironclaw/skills/` or workspace `skills/` | All tools available to the agent |
-| **Installed** | Downloaded from ClawHub registry (`~/.ironclaw/installed_skills/`) | Read-only tools only (no shell, file write, HTTP) |
+| **Trusted** | User-placed in `~/.optimclaw/skills/` or workspace `skills/` | All tools available to the agent |
+| **Installed** | Downloaded from ClawHub registry (`~/.optimclaw/installed_skills/`) | Read-only tools only (no shell, file write, HTTP) |
 
 ## SKILL.md Format
 

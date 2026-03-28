@@ -1,6 +1,6 @@
 # User Management API
 
-DB-backed user management for multi-tenant IronClaw deployments. Covers admin user CRUD, per-user secrets provisioning, self-service profile, API token management, and usage reporting.
+DB-backed user management for multi-tenant OptimClaw deployments. Covers admin user CRUD, per-user secrets provisioning, self-service profile, API token management, and usage reporting.
 
 ## Authentication
 
@@ -211,7 +211,7 @@ Permanently delete a user and all associated data (tokens, jobs, conversations, 
 
 ## Admin: Per-User Secrets
 
-Provision secrets on behalf of individual users. The primary use case is an application backend (acting as admin) that configures per-user credentials so each user's IronClaw agent can call back to external services.
+Provision secrets on behalf of individual users. The primary use case is an application backend (acting as admin) that configures per-user credentials so each user's OptimClaw agent can call back to external services.
 
 Secrets are encrypted at rest with AES-256-GCM using a per-secret HKDF-derived key. Plaintext values are **never returned** by any endpoint — they can only be used by the agent's tool system at runtime.
 
@@ -260,17 +260,17 @@ Create or update a secret for the specified user. If a secret with the same name
 
 ```bash
 # Admin creates a user
-curl -X POST https://ironclaw.example.com/api/admin/users \
+curl -X POST https://optimclaw.example.com/api/admin/users \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d '{"display_name": "Alice", "role": "member"}'
 # Response includes: {"id": "alice-uuid", "token": "alice-bearer-token", ...}
 
 # Admin provisions a per-user callback secret
-curl -X PUT https://ironclaw.example.com/api/admin/users/alice-uuid/secrets/app_callback_token \
+curl -X PUT https://optimclaw.example.com/api/admin/users/alice-uuid/secrets/app_callback_token \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d '{"value": "per-user-jwt-for-alice", "provider": "my-app"}'
 
-# Now Alice's IronClaw agent can use the "app_callback_token" secret
+# Now Alice's OptimClaw agent can use the "app_callback_token" secret
 # when calling tools that need to authenticate back to the app backend.
 ```
 

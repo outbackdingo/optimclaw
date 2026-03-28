@@ -10,7 +10,7 @@ mod support;
 mod tests {
     use std::time::Duration;
 
-    use ironclaw::agent::routine::{RoutineAction, Trigger};
+    use optimclaw::agent::routine::{RoutineAction, Trigger};
 
     use crate::support::test_rig::TestRigBuilder;
     use crate::support::trace_llm::LlmTrace;
@@ -426,7 +426,7 @@ mod tests {
                 assert_eq!(event_type, "issue.opened");
                 assert_eq!(
                     filters.get("repository").map(String::as_str),
-                    Some("nearai/ironclaw")
+                    Some("nearai/optimclaw")
                 );
                 assert_eq!(filters.get("priority").map(String::as_str), Some("p1"));
             }
@@ -537,7 +537,7 @@ mod tests {
                 assert_eq!(event_type, "issue.opened");
                 assert_eq!(
                     filters.get("repository").map(String::as_str),
-                    Some("nearai/ironclaw")
+                    Some("nearai/optimclaw")
                 );
                 assert_eq!(filters.get("priority").map(String::as_str), Some("p1"));
             }

@@ -21,7 +21,7 @@
   },
   "artifacts": {
     "wasm32-wasip2": {
-      "url": "https://github.com/nearai/ironclaw/releases/download/ironclaw-v0.22.0/tool-llm-context-0.1.1-wasm32-wasip2.tar.gz",
+      "url": "https://github.com/nearai/optimclaw/releases/download/optimclaw-v0.22.0/tool-llm-context-0.1.1-wasm32-wasip2.tar.gz",
       "sha256": "9b19e2fd05dbbbe3c8bd55309a91db09124e8415eb0f767828b6e10b55771e63"
     }
   },

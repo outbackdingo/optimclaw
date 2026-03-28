@@ -801,7 +801,7 @@ mod tests {
     }
 
     // Regression tests for per-user workspace scoping (multi-tenant mode).
-    // See: https://github.com/nearai/ironclaw/pull/1118
+    // See: https://github.com/nearai/optimclaw/pull/1118
     // Bug: memory tools used a single startup workspace regardless of which
     // user was chatting. Fix: resolve workspace per-request via JobContext.user_id.
 

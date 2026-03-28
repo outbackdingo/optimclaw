@@ -60,12 +60,12 @@ use std::sync::Arc;
 use clap::{ColorChoice, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
-#[command(name = "ironclaw")]
+#[command(name = "optimclaw")]
 #[command(
     about = "Secure personal AI assistant that protects your data and expands its capabilities"
 )]
 #[command(
-    long_about = "IronClaw is a secure AI assistant. Use 'ironclaw <subcommand> --help' for details.\nExamples:\n  ironclaw run  # Start the agent\n  ironclaw config list  # List configs"
+    long_about = "OptimClaw is a secure AI assistant. Use 'optimclaw <subcommand> --help' for details.\nExamples:\n  optimclaw run  # Start the agent\n  optimclaw config list  # List configs"
 )]
 #[command(version)]
 #[command(color = ColorChoice::Auto)] // Enable auto-color for help (if the terminal supports it)
@@ -99,14 +99,14 @@ pub enum Command {
     /// Run the agent (default if no subcommand given)
     #[command(
         about = "Run the AI agent",
-        long_about = "Starts the IronClaw agent in default mode.\nExample: ironclaw run"
+        long_about = "Starts the OptimClaw agent in default mode.\nExample: optimclaw run"
     )]
     Run,
 
     /// Interactive onboarding wizard
     #[command(
         about = "Run interactive setup wizard",
-        long_about = "Guides through initial configuration.\nExamples:\n  ironclaw onboard --skip-auth  # Skip auth step\n  ironclaw onboard --channels-only  # Reconfigure channels\n  ironclaw onboard --provider-only  # Change LLM provider and model"
+        long_about = "Guides through initial configuration.\nExamples:\n  optimclaw onboard --skip-auth  # Skip auth step\n  optimclaw onboard --channels-only  # Reconfigure channels\n  optimclaw onboard --provider-only  # Change LLM provider and model"
     )]
     Onboard {
         /// Skip authentication (use existing session)
@@ -134,7 +134,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage app configs",
-        long_about = "Commands for listing, getting, and setting configurations.\nExample: ironclaw config list"
+        long_about = "Commands for listing, getting, and setting configurations.\nExample: optimclaw config list"
     )]
     Config(ConfigCommand),
 
@@ -142,7 +142,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage WASM tools",
-        long_about = "Install, list, or remove WASM-based tools.\nExample: ironclaw tool install mytool.wasm"
+        long_about = "Install, list, or remove WASM-based tools.\nExample: optimclaw tool install mytool.wasm"
     )]
     Tool(ToolCommand),
 
@@ -150,7 +150,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Browse/install extensions",
-        long_about = "Interact with extension registry.\nExample: ironclaw registry list"
+        long_about = "Interact with extension registry.\nExample: optimclaw registry list"
     )]
     Registry(RegistryCommand),
 
@@ -158,7 +158,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage channels",
-        long_about = "List configured messaging channels.\nExamples:\n  ironclaw channels list\n  ironclaw channels list --verbose\n  ironclaw channels list --json"
+        long_about = "List configured messaging channels.\nExamples:\n  optimclaw channels list\n  optimclaw channels list --verbose\n  optimclaw channels list --json"
     )]
     Channels(ChannelsCommand),
 
@@ -167,7 +167,7 @@ pub enum Command {
         subcommand,
         alias = "cron",
         about = "Manage routines",
-        long_about = "List, create, edit, enable/disable, delete, and view history of routines.\nExamples:\n  ironclaw routines list\n  ironclaw routines create --name daily-digest --schedule '0 0 9 * * *' --prompt 'Summarize today'"
+        long_about = "List, create, edit, enable/disable, delete, and view history of routines.\nExamples:\n  optimclaw routines list\n  optimclaw routines create --name daily-digest --schedule '0 0 9 * * *' --prompt 'Summarize today'"
     )]
     Routines(RoutinesCommand),
 
@@ -175,7 +175,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage MCP servers",
-        long_about = "Add, auth, list, or test MCP servers.\nExample: ironclaw mcp add notion https://mcp.notion.com"
+        long_about = "Add, auth, list, or test MCP servers.\nExample: optimclaw mcp add notion https://mcp.notion.com"
     )]
     Mcp(Box<McpCommand>),
 
@@ -183,7 +183,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage workspace memory",
-        long_about = "Search, read, or write to memory.\nExample: ironclaw memory search 'query'"
+        long_about = "Search, read, or write to memory.\nExample: optimclaw memory search 'query'"
     )]
     Memory(MemoryCommand),
 
@@ -191,7 +191,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage DM pairing",
-        long_about = "Approve or manage pairing requests.\nExamples:\n  ironclaw pairing list telegram\n  ironclaw pairing approve telegram ABC12345"
+        long_about = "Approve or manage pairing requests.\nExamples:\n  optimclaw pairing list telegram\n  optimclaw pairing approve telegram ABC12345"
     )]
     Pairing(PairingCommand),
 
@@ -199,7 +199,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage OS service",
-        long_about = "Install, start, or stop service.\nExample: ironclaw service install"
+        long_about = "Install, start, or stop service.\nExample: optimclaw service install"
     )]
     Service(ServiceCommand),
 
@@ -207,7 +207,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage skills",
-        long_about = "List, search, and inspect SKILL.md-based skills.\nExamples:\n  ironclaw skills list\n  ironclaw skills search 'writing'\n  ironclaw skills info my-skill"
+        long_about = "List, search, and inspect SKILL.md-based skills.\nExamples:\n  optimclaw skills list\n  optimclaw skills search 'writing'\n  optimclaw skills info my-skill"
     )]
     Skills(SkillsCommand),
 
@@ -215,7 +215,7 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage lifecycle hooks",
-        long_about = "List and inspect lifecycle hooks (bundled, plugin, workspace).\nExamples:\n  ironclaw hooks list\n  ironclaw hooks list --verbose\n  ironclaw hooks list --json"
+        long_about = "List and inspect lifecycle hooks (bundled, plugin, workspace).\nExamples:\n  optimclaw hooks list\n  optimclaw hooks list --verbose\n  optimclaw hooks list --json"
     )]
     Hooks(HooksCommand),
 
@@ -223,35 +223,35 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Manage LLM providers and models",
-        long_about = "List providers, view current configuration, and set active provider/model.\nExamples:\n  ironclaw models list\n  ironclaw models list openai --verbose\n  ironclaw models status\n  ironclaw models set gpt-4o\n  ironclaw models set-provider anthropic --model claude-sonnet-4-6-20250514"
+        long_about = "List providers, view current configuration, and set active provider/model.\nExamples:\n  optimclaw models list\n  optimclaw models list openai --verbose\n  optimclaw models status\n  optimclaw models set gpt-4o\n  optimclaw models set-provider anthropic --model claude-sonnet-4-6-20250514"
     )]
     Models(ModelsCommand),
 
     /// Probe external dependencies and validate configuration
     #[command(
         about = "Run diagnostics",
-        long_about = "Checks dependencies and config validity.\nExample: ironclaw doctor"
+        long_about = "Checks dependencies and config validity.\nExample: optimclaw doctor"
     )]
     Doctor,
 
     /// View and manage gateway logs
     #[command(
         about = "View and manage gateway logs",
-        long_about = "Tail gateway logs, stream live output, or adjust log level.\nExamples:\n  ironclaw logs                 # Show last 200 lines from gateway.log\n  ironclaw logs --follow        # Stream live logs via SSE\n  ironclaw logs --level         # Show current log level\n  ironclaw logs --level debug   # Set log level to debug"
+        long_about = "Tail gateway logs, stream live output, or adjust log level.\nExamples:\n  optimclaw logs                 # Show last 200 lines from gateway.log\n  optimclaw logs --follow        # Stream live logs via SSE\n  optimclaw logs --level         # Show current log level\n  optimclaw logs --level debug   # Set log level to debug"
     )]
     Logs(LogsCommand),
 
     /// Show system health and diagnostics
     #[command(
         about = "Show system status",
-        long_about = "Displays health and diagnostics info.\nExample: ironclaw status"
+        long_about = "Displays health and diagnostics info.\nExample: optimclaw status"
     )]
     Status,
 
     /// Generate shell completion scripts
     #[command(
         about = "Generate completions",
-        long_about = "Generates shell completion scripts.\nExample: ironclaw completion --shell bash > ironclaw.bash"
+        long_about = "Generates shell completion scripts.\nExample: optimclaw completion --shell bash > optimclaw.bash"
     )]
     Completion(Completion),
 
@@ -260,14 +260,14 @@ pub enum Command {
     #[command(
         subcommand,
         about = "Import from other AI systems",
-        long_about = "Migrate data from other AI assistants like OpenClaw.\nExample: ironclaw import openclaw"
+        long_about = "Migrate data from other AI assistants like OpenClaw.\nExample: optimclaw import openclaw"
     )]
     Import(ImportCommand),
 
     /// Authenticate with a provider (re-login)
     #[command(
         about = "Authenticate with a provider",
-        long_about = "Re-authenticate with an LLM provider.\nExample: ironclaw login --openai-codex"
+        long_about = "Re-authenticate with an LLM provider.\nExample: optimclaw login --openai-codex"
     )]
     Login {
         /// Authenticate with OpenAI Codex (ChatGPT subscription)
@@ -330,7 +330,7 @@ pub async fn init_secrets_store()
     let config = crate::config::Config::from_env().await?;
     let master_key = config.secrets.master_key().ok_or_else(|| {
         anyhow::anyhow!(
-            "SECRETS_MASTER_KEY not set. Run 'ironclaw onboard' first or set it in .env"
+            "SECRETS_MASTER_KEY not set. Run 'optimclaw onboard' first or set it in .env"
         )
     })?;
 
@@ -352,7 +352,7 @@ pub async fn run_routines_cli(
         .await
         .map_err(|e| anyhow::anyhow!("{e:#}"))?;
 
-    let user_id = std::env::var("IRONCLAW_OWNER_ID").unwrap_or_else(|_| "default".to_string());
+    let user_id = std::env::var("OPTIMCLAW_OWNER_ID").unwrap_or_else(|_| "default".to_string());
     run_routines_command(routines_cmd.clone(), db, &user_id).await
 }
 

@@ -25,7 +25,7 @@ use crate::worker::api::{
     CompletionReport, CredentialResponse, JobDescription, ProxyCompletionRequest,
     ProxyCompletionResponse, ProxyToolCompletionRequest, ProxyToolCompletionResponse, StatusUpdate,
 };
-use ironclaw_common::AppEvent;
+use optimclaw_common::AppEvent;
 
 /// A follow-up prompt queued for a Claude Code bridge.
 #[derive(Debug, Clone, Serialize, Deserialize)]

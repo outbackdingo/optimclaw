@@ -1,11 +1,11 @@
-//! IronClaw - Main entry point.
+//! OptimClaw - Main entry point.
 
 use std::sync::Arc;
 use std::time::Duration;
 
 use clap::Parser;
 
-use ironclaw::{
+use optimclaw::{
     agent::{Agent, AgentDeps},
     app::{AppBuilder, AppBuilderFlags},
     channels::{
@@ -28,15 +28,15 @@ use ironclaw::{
 };
 
 #[cfg(unix)]
-use ironclaw::channels::ChannelSecretUpdater;
+use optimclaw::channels::ChannelSecretUpdater;
 #[cfg(any(feature = "postgres", feature = "libsql"))]
-use ironclaw::setup::{SetupConfig, SetupWizard};
+use optimclaw::setup::{SetupConfig, SetupWizard};
 
 /// Synchronous entry point. Loads `.env` files before the Tokio runtime
 /// starts so that `std::env::set_var` is safe (no worker threads yet).
 fn main() -> anyhow::Result<()> {
     let _ = dotenvy::dotenv();
-    ironclaw::bootstrap::load_ironclaw_env();
+    optimclaw::bootstrap::load_optimclaw_env();
 
     let result = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -51,7 +51,7 @@ fn main() -> anyhow::Result<()> {
 
 /// Format a top-level error with color and recovery hints.
 fn format_top_level_error(err: &anyhow::Error) {
-    use ironclaw::cli::fmt;
+    use optimclaw::cli::fmt;
     let msg = format!("{err:#}");
 
     eprintln!();
@@ -62,17 +62,17 @@ fn format_top_level_error(err: &anyhow::Error) {
     let hint = if lower.contains("database_url")
         || lower.contains("database") && lower.contains("not set")
     {
-        Some("run `ironclaw onboard` or set DATABASE_URL in .env")
+        Some("run `optimclaw onboard` or set DATABASE_URL in .env")
     } else if lower.contains("connection refused") || lower.contains("connect error") {
         Some("check that the database server is running")
     } else if lower.contains("session") && lower.contains("not found") {
-        Some("run `ironclaw onboard` to set up authentication")
+        Some("run `optimclaw onboard` to set up authentication")
     } else if lower.contains("secrets_master_key") {
-        Some("run `ironclaw onboard` or set SECRETS_MASTER_KEY in .env")
+        Some("run `optimclaw onboard` or set SECRETS_MASTER_KEY in .env")
     } else if lower.contains("already running") {
         Some("stop the other instance or remove the stale PID file")
     } else if lower.contains("onboard") {
-        Some("run `ironclaw onboard` to complete setup")
+        Some("run `optimclaw onboard` to complete setup")
     } else {
         None
     };
@@ -94,15 +94,15 @@ async fn async_main() -> anyhow::Result<()> {
         }
         Some(Command::Config(config_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_config_command(config_cmd.clone()).await;
+            return optimclaw::cli::run_config_command(config_cmd.clone()).await;
         }
         Some(Command::Registry(registry_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_registry_command(registry_cmd.clone()).await;
+            return optimclaw::cli::run_registry_command(registry_cmd.clone()).await;
         }
         Some(Command::Channels(channels_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_channels_command(
+            return optimclaw::cli::run_channels_command(
                 channels_cmd.clone(),
                 cli.config.as_deref(),
             )
@@ -110,7 +110,7 @@ async fn async_main() -> anyhow::Result<()> {
         }
         Some(Command::Routines(routines_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_routines_cli(routines_cmd, cli.config.as_deref()).await;
+            return optimclaw::cli::run_routines_cli(routines_cmd, cli.config.as_deref()).await;
         }
         Some(Command::Mcp(mcp_cmd)) => {
             init_cli_tracing();
@@ -118,7 +118,7 @@ async fn async_main() -> anyhow::Result<()> {
         }
         Some(Command::Memory(mem_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_memory_command(mem_cmd).await;
+            return optimclaw::cli::run_memory_command(mem_cmd).await;
         }
         Some(Command::Pairing(pairing_cmd)) => {
             init_cli_tracing();
@@ -130,26 +130,26 @@ async fn async_main() -> anyhow::Result<()> {
         }
         Some(Command::Skills(skills_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_skills_command(skills_cmd.clone(), cli.config.as_deref())
+            return optimclaw::cli::run_skills_command(skills_cmd.clone(), cli.config.as_deref())
                 .await;
         }
         Some(Command::Hooks(hooks_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_hooks_command(hooks_cmd.clone(), cli.config.as_deref())
+            return optimclaw::cli::run_hooks_command(hooks_cmd.clone(), cli.config.as_deref())
                 .await;
         }
         Some(Command::Logs(logs_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_logs_command(logs_cmd.clone(), cli.config.as_deref()).await;
+            return optimclaw::cli::run_logs_command(logs_cmd.clone(), cli.config.as_deref()).await;
         }
         Some(Command::Models(models_cmd)) => {
             init_cli_tracing();
-            return ironclaw::cli::run_models_command(models_cmd.clone(), cli.config.as_deref())
+            return optimclaw::cli::run_models_command(models_cmd.clone(), cli.config.as_deref())
                 .await;
         }
         Some(Command::Doctor) => {
             init_cli_tracing();
-            return ironclaw::cli::run_doctor_command().await;
+            return optimclaw::cli::run_doctor_command().await;
         }
         Some(Command::Status) => {
             init_cli_tracing();
@@ -162,8 +162,8 @@ async fn async_main() -> anyhow::Result<()> {
         #[cfg(feature = "import")]
         Some(Command::Import(import_cmd)) => {
             init_cli_tracing();
-            let config = ironclaw::config::Config::from_env().await?;
-            return ironclaw::cli::run_import_command(import_cmd, &config).await;
+            let config = optimclaw::config::Config::from_env().await?;
+            return optimclaw::cli::run_import_command(import_cmd, &config).await;
         }
         Some(Command::Worker {
             job_id,
@@ -171,7 +171,7 @@ async fn async_main() -> anyhow::Result<()> {
             max_iterations,
         }) => {
             init_worker_tracing();
-            return ironclaw::worker::run_worker(*job_id, orchestrator_url, *max_iterations).await;
+            return optimclaw::worker::run_worker(*job_id, orchestrator_url, *max_iterations).await;
         }
         Some(Command::ClaudeBridge {
             job_id,
@@ -180,7 +180,7 @@ async fn async_main() -> anyhow::Result<()> {
             model,
         }) => {
             init_worker_tracing();
-            return ironclaw::worker::run_claude_bridge(
+            return optimclaw::worker::run_claude_bridge(
                 *job_id,
                 orchestrator_url,
                 *max_turns,
@@ -198,7 +198,7 @@ async fn async_main() -> anyhow::Result<()> {
                         .await
                         .map_err(|e| anyhow::anyhow!("{}", e))?;
                     config.llm.openai_codex.unwrap_or_else(|| {
-                        use ironclaw::llm::OpenAiCodexConfig;
+                        use optimclaw::llm::OpenAiCodexConfig;
                         let mut cfg = OpenAiCodexConfig::default();
                         if let Ok(v) = std::env::var("OPENAI_CODEX_AUTH_URL") {
                             cfg.auth_endpoint = v;
@@ -215,7 +215,7 @@ async fn async_main() -> anyhow::Result<()> {
                         cfg
                     })
                 };
-                let mgr = ironclaw::llm::OpenAiCodexSessionManager::new(codex_config)
+                let mgr = optimclaw::llm::OpenAiCodexSessionManager::new(codex_config)
                     .map_err(|e| anyhow::anyhow!("{}", e))?;
                 mgr.device_code_login()
                     .await
@@ -225,7 +225,7 @@ async fn async_main() -> anyhow::Result<()> {
                 );
             } else {
                 println!("Specify a provider to authenticate with:");
-                println!("  ironclaw login --openai-codex   (ChatGPT subscription)");
+                println!("  optimclaw login --openai-codex   (ChatGPT subscription)");
             }
             return Ok(());
         }
@@ -262,14 +262,14 @@ async fn async_main() -> anyhow::Result<()> {
     }
 
     // ── PID lock (prevent multiple instances) ────────────────────────
-    let _pid_lock = match ironclaw::bootstrap::PidLock::acquire() {
+    let _pid_lock = match optimclaw::bootstrap::PidLock::acquire() {
         Ok(lock) => Some(lock),
-        Err(ironclaw::bootstrap::PidLockError::AlreadyRunning { pid }) => {
+        Err(optimclaw::bootstrap::PidLockError::AlreadyRunning { pid }) => {
             anyhow::bail!(
-                "Another IronClaw instance is already running (PID {}). \
+                "Another OptimClaw instance is already running (PID {}). \
                  If this is incorrect, remove the stale PID file: {}",
                 pid,
-                ironclaw::bootstrap::pid_lock_path().display()
+                optimclaw::bootstrap::pid_lock_path().display()
             );
         }
         Err(e) => {
@@ -286,7 +286,7 @@ async fn async_main() -> anyhow::Result<()> {
     // Enhanced first-run detection
     #[cfg(any(feature = "postgres", feature = "libsql"))]
     if !cli.no_onboard
-        && let Some(reason) = ironclaw::setup::check_onboard_needed()
+        && let Some(reason) = optimclaw::setup::check_onboard_needed()
     {
         println!("Onboarding needed: {}", reason);
         println!();
@@ -307,10 +307,10 @@ async fn async_main() -> anyhow::Result<()> {
     let toml_path = cli.config.as_deref();
     let config = match Config::from_env_with_toml(toml_path).await {
         Ok(c) => c,
-        Err(ironclaw::error::ConfigError::MissingRequired { key, hint }) => {
+        Err(optimclaw::error::ConfigError::MissingRequired { key, hint }) => {
             anyhow::bail!(
                 "Configuration error: Missing required setting '{}'. {}. \
-                 Run 'ironclaw onboard' to configure, or set the required environment variables.",
+                 Run 'optimclaw onboard' to configure, or set the required environment variables.",
                 key,
                 hint
             );
@@ -327,9 +327,9 @@ async fn async_main() -> anyhow::Result<()> {
     // Initialize tracing with a reloadable EnvFilter so the gateway can switch
     // log levels at runtime without restarting.
     let log_level_handle =
-        ironclaw::channels::web::log_layer::init_tracing(Arc::clone(&log_broadcaster));
+        optimclaw::channels::web::log_layer::init_tracing(Arc::clone(&log_broadcaster));
 
-    tracing::debug!("Starting IronClaw...");
+    tracing::debug!("Starting OptimClaw...");
     tracing::debug!("Loaded configuration for agent: {}", config.agent.name);
     tracing::debug!("LLM backend: {}", config.llm.backend);
 
@@ -350,11 +350,11 @@ async fn async_main() -> anyhow::Result<()> {
 
     // ── Tunnel setup ───────────────────────────────────────────────────
 
-    let (config, active_tunnel) = ironclaw::tunnel::start_managed_tunnel(config).await;
+    let (config, active_tunnel) = optimclaw::tunnel::start_managed_tunnel(config).await;
 
     // ── Orchestrator / container job manager ────────────────────────────
 
-    let orch = ironclaw::orchestrator::setup_orchestrator(
+    let orch = optimclaw::orchestrator::setup_orchestrator(
         &config,
         &components.llm,
         components.db.as_ref(),
@@ -368,12 +368,12 @@ async fn async_main() -> anyhow::Result<()> {
 
     // Derive user-facing warning from docker_status for channel notification
     let docker_user_warning: Option<String> = match docker_status {
-        ironclaw::sandbox::DockerStatus::NotInstalled => Some(
+        optimclaw::sandbox::DockerStatus::NotInstalled => Some(
             "Sandbox is enabled but Docker is not installed -- \
              full_job routines will fail until Docker is available."
                 .to_string(),
         ),
-        ironclaw::sandbox::DockerStatus::NotRunning => Some(
+        optimclaw::sandbox::DockerStatus::NotRunning => Some(
             "Sandbox is enabled but Docker is not running -- \
              full_job routines will fail until Docker is started."
                 .to_string(),
@@ -418,7 +418,7 @@ async fn async_main() -> anyhow::Result<()> {
     }
 
     // Shared routine engine slot for gateway + generic webhook ingress.
-    let shared_routine_engine_slot: ironclaw::channels::web::server::RoutineEngineSlot =
+    let shared_routine_engine_slot: optimclaw::channels::web::server::RoutineEngineSlot =
         Arc::new(tokio::sync::RwLock::new(None));
 
     // Collect webhook route fragments; a single WebhookServer hosts them all.
@@ -444,7 +444,7 @@ async fn async_main() -> anyhow::Result<()> {
         );
     }
     if config.channels.wasm_channels_enabled && config.channels.wasm_channels_dir.exists() {
-        let wasm_result = ironclaw::channels::wasm::setup_wasm_channels(
+        let wasm_result = optimclaw::channels::wasm::setup_wasm_channels(
             &config,
             &components.secrets_store,
             components.extension_manager.as_ref(),
@@ -491,7 +491,7 @@ async fn async_main() -> anyhow::Result<()> {
     // Add HTTP channel if configured and not CLI-only mode.
     let mut webhook_server_addr: Option<std::net::SocketAddr> = None;
     #[cfg(unix)]
-    let mut http_channel_state: Option<Arc<ironclaw::channels::HttpChannelState>> = None;
+    let mut http_channel_state: Option<Arc<optimclaw::channels::HttpChannelState>> = None;
     if !cli.cli_only
         && let Some(ref http_config) = config.channels.http
     {
@@ -567,7 +567,7 @@ async fn async_main() -> anyhow::Result<()> {
     // Lazy scheduler slot — filled after Agent::new creates the Scheduler.
     // Allows CreateJobTool to dispatch local jobs via the Scheduler even though
     // the Scheduler is created after tools are registered (chicken-and-egg).
-    let scheduler_slot: ironclaw::tools::builtin::SchedulerSlot =
+    let scheduler_slot: optimclaw::tools::builtin::SchedulerSlot =
         Arc::new(tokio::sync::RwLock::new(None));
 
     // Register job tools (sandbox deps auto-injected when container_job_manager is available)
@@ -589,7 +589,7 @@ async fn async_main() -> anyhow::Result<()> {
     // ── Gateway channel ────────────────────────────────────────────────
 
     let mut gateway_url: Option<String> = None;
-    let mut sse_manager: Option<std::sync::Arc<ironclaw::channels::web::sse::SseManager>> = None;
+    let mut sse_manager: Option<std::sync::Arc<optimclaw::channels::web::sse::SseManager>> = None;
     if let Some(ref gw_config) = config.channels.gateway {
         let mut gw = GatewayChannel::new(gw_config.clone(), config.owner_id.clone());
         gw = gw.with_llm_provider(Arc::clone(&components.llm));
@@ -598,10 +598,10 @@ async fn async_main() -> anyhow::Result<()> {
         }
         // Create per-user workspace pool for multi-user mode.
         if let Some(ref db) = components.db {
-            let emb_cache_config = ironclaw::workspace::EmbeddingCacheConfig {
+            let emb_cache_config = optimclaw::workspace::EmbeddingCacheConfig {
                 max_entries: config.embeddings.cache_size,
             };
-            let pool = Arc::new(ironclaw::channels::web::server::WorkspacePool::new(
+            let pool = Arc::new(optimclaw::channels::web::server::WorkspacePool::new(
                 Arc::clone(db),
                 components.embeddings.clone(),
                 emb_cache_config,
@@ -639,7 +639,7 @@ async fn async_main() -> anyhow::Result<()> {
             // so the owner appears in the Users admin panel immediately.
             if let Ok(false) = d.has_any_users().await {
                 let now = chrono::Utc::now();
-                let user = ironclaw::db::UserRecord {
+                let user = optimclaw::db::UserRecord {
                     id: config.owner_id.clone(),
                     email: None,
                     display_name: config.owner_id.clone(),
@@ -658,7 +658,7 @@ async fn async_main() -> anyhow::Result<()> {
                         tracing::warn!("Failed to bootstrap admin user: {}", e);
                     }
                 } else {
-                    use ironclaw::channels::web::auth::hash_token;
+                    use optimclaw::channels::web::auth::hash_token;
                     let hash = hash_token(auth_token);
                     let prefix = if auth_token.len() >= 8 {
                         &auth_token[..8]
@@ -695,7 +695,7 @@ async fn async_main() -> anyhow::Result<()> {
             let active_model = components.llm.model_name().to_string();
             let mut enabled = channel_names.clone();
             enabled.push("gateway".into());
-            gw = gw.with_active_config(ironclaw::channels::web::server::ActiveConfigSnapshot {
+            gw = gw.with_active_config(optimclaw::channels::web::server::ActiveConfigSnapshot {
                 llm_backend: config.llm.backend.to_string(),
                 llm_model: active_model,
                 enabled_channels: enabled,
@@ -770,7 +770,7 @@ async fn async_main() -> anyhow::Result<()> {
         .map(|c| c.model_name().to_string());
 
     if config.channels.cli.enabled && cli.message.is_none() {
-        let boot_info = ironclaw::boot_screen::BootInfo {
+        let boot_info = optimclaw::boot_screen::BootInfo {
             version: env!("CARGO_PKG_VERSION").to_string(),
             agent_name: config.agent.name.clone(),
             llm_backend: config.llm.backend.to_string(),
@@ -805,7 +805,7 @@ async fn async_main() -> anyhow::Result<()> {
             tunnel_provider: active_tunnel.as_ref().map(|t| t.name().to_string()),
             startup_elapsed: Some(startup_start.elapsed()),
         };
-        ironclaw::boot_screen::print_boot_screen(&boot_info);
+        optimclaw::boot_screen::print_boot_screen(&boot_info);
     }
 
     // ── Run the agent ──────────────────────────────────────────────────
@@ -899,10 +899,10 @@ async fn async_main() -> anyhow::Result<()> {
 
     // Capture db reference for SIGHUP handler before it's moved into AgentDeps (Unix only)
     #[cfg(unix)]
-    let sighup_settings_store: Option<Arc<dyn ironclaw::db::SettingsStore>> = components
+    let sighup_settings_store: Option<Arc<dyn optimclaw::db::SettingsStore>> = components
         .db
         .as_ref()
-        .map(|db| Arc::clone(db) as Arc<dyn ironclaw::db::SettingsStore>);
+        .map(|db| Arc::clone(db) as Arc<dyn optimclaw::db::SettingsStore>);
 
     let deps = AgentDeps {
         owner_id: config.owner_id.clone(),
@@ -921,23 +921,23 @@ async fn async_main() -> anyhow::Result<()> {
         sse_tx: sse_manager,
         http_interceptor,
         transcription: config.transcription.create_provider().map(|p| {
-            Arc::new(ironclaw::llm::transcription::TranscriptionMiddleware::new(
+            Arc::new(optimclaw::llm::transcription::TranscriptionMiddleware::new(
                 p,
             ))
         }),
         document_extraction: Some(Arc::new(
-            ironclaw::document_extraction::DocumentExtractionMiddleware::new(),
+            optimclaw::document_extraction::DocumentExtractionMiddleware::new(),
         )),
         sandbox_readiness: if !config.sandbox.enabled {
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig
         } else if docker_status.is_ok() {
-            ironclaw::agent::routine_engine::SandboxReadiness::Available
+            optimclaw::agent::routine_engine::SandboxReadiness::Available
         } else {
-            ironclaw::agent::routine_engine::SandboxReadiness::DockerUnavailable
+            optimclaw::agent::routine_engine::SandboxReadiness::DockerUnavailable
         },
         builder: components.builder,
         llm_backend: config.llm.backend.clone(),
-        tenant_rates: Arc::new(ironclaw::tenant::TenantRateRegistry::new(
+        tenant_rates: Arc::new(optimclaw::tenant::TenantRateRegistry::new(
             config.agent.max_llm_concurrent_per_user.unwrap_or(4),
             config.agent.max_jobs_concurrent_per_user.unwrap_or(3),
         )),
@@ -1029,7 +1029,7 @@ async fn async_main() -> anyhow::Result<()> {
                     {
                         // Thread-safe: Uses INJECTED_VARS mutex instead of unsafe std::env::set_var
                         // Config::from_env() will read from the overlay via optional_env()
-                        ironclaw::config::inject_single_var(
+                        optimclaw::config::inject_single_var(
                             "HTTP_WEBHOOK_SECRET",
                             webhook_secret.expose(),
                         );
@@ -1040,9 +1040,9 @@ async fn async_main() -> anyhow::Result<()> {
                 // Reload config (now with secrets injected into environment)
                 let new_config = match &sighup_settings_store_clone {
                     Some(store) => {
-                        ironclaw::config::Config::from_db(store.as_ref(), &sighup_owner_id).await
+                        optimclaw::config::Config::from_db(store.as_ref(), &sighup_owner_id).await
                     }
-                    None => ironclaw::config::Config::from_env().await,
+                    None => optimclaw::config::Config::from_env().await,
                 };
 
                 let new_config = match new_config {
@@ -1158,7 +1158,7 @@ async fn async_main() -> anyhow::Result<()> {
             // 5s is generous but avoids the message being lost on slow startups.
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             tracing::debug!("Sending sandbox-unavailable warning to connected channels");
-            let response = ironclaw::channels::OutgoingResponse {
+            let response = optimclaw::channels::OutgoingResponse {
                 content: format!("Warning: {warning}"),
                 thread_id: None,
                 attachments: Vec::new(),

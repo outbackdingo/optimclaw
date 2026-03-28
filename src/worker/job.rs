@@ -33,7 +33,7 @@ use crate::tools::rate_limiter::RateLimitResult;
 use crate::tools::{
     ApprovalContext, ToolRegistry, autonomous_unavailable_error, prepare_tool_params, redact_params,
 };
-use ironclaw_common::AppEvent;
+use optimclaw_common::AppEvent;
 
 /// Shared dependencies for worker execution.
 ///

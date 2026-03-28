@@ -7,7 +7,7 @@
 //! # Example
 //!
 //! ```ignore
-//! use ironclaw::secrets::keychain::{store_master_key, get_master_key, delete_master_key};
+//! use optimclaw::secrets::keychain::{store_master_key, get_master_key, delete_master_key};
 //!
 //! // Generate and store a new master key
 //! let key = generate_master_key();
@@ -21,7 +21,7 @@ use crate::secrets::SecretError;
 
 /// Service name for keychain entries.
 #[cfg(any(target_os = "macos", target_os = "linux"))]
-const SERVICE_NAME: &str = "ironclaw";
+const SERVICE_NAME: &str = "optimclaw";
 
 /// Account name for the master key.
 #[cfg(any(target_os = "macos", target_os = "linux"))]

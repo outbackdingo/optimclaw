@@ -168,7 +168,7 @@ impl SkillCatalog {
 
         let client = reqwest::Client::builder()
             .timeout(REQUEST_TIMEOUT)
-            .user_agent(concat!("ironclaw/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("optimclaw/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap_or_default();
 
@@ -190,7 +190,7 @@ impl SkillCatalog {
     pub fn with_url_and_timeout(url: &str, timeout: Duration) -> Self {
         let client = reqwest::Client::builder()
             .timeout(timeout)
-            .user_agent(concat!("ironclaw/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("optimclaw/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap_or_default();
 

@@ -292,7 +292,7 @@ fn channel_auth_instructions(
 ) -> String {
     if channel_name == TELEGRAM_CHANNEL_NAME && secret.name == "telegram_bot_token" {
         return format!(
-            "{} After you submit it, IronClaw will show a one-time verification code. Send `/start CODE` to your bot in Telegram and IronClaw will finish setup automatically.",
+            "{} After you submit it, OptimClaw will show a one-time verification code. Send `/start CODE` to your bot in Telegram and OptimClaw will finish setup automatically.",
             secret.prompt
         );
     }
@@ -326,11 +326,11 @@ fn telegram_verification_deep_link(bot_username: Option<&str>, code: &str) -> Op
 fn telegram_verification_instructions(bot_username: Option<&str>, code: &str) -> String {
     if let Some(username) = bot_username.filter(|username| !username.trim().is_empty()) {
         return format!(
-            "Send `/start {code}` to @{username} in Telegram. IronClaw will finish setup automatically."
+            "Send `/start {code}` to @{username} in Telegram. OptimClaw will finish setup automatically."
         );
     }
 
-    format!("Send `/start {code}` to your Telegram bot. IronClaw will finish setup automatically.")
+    format!("Send `/start {code}` to your Telegram bot. OptimClaw will finish setup automatically.")
 }
 
 fn telegram_message_matches_verification_code(text: &str, code: &str) -> bool {
@@ -436,7 +436,7 @@ pub struct ExtensionManager {
     /// `/oauth/callback` handler.
     pending_oauth_flows: crate::cli::oauth_defaults::PendingOAuthRegistry,
     /// OAuth proxy auth token for authenticating with the hosted token exchange proxy.
-    /// Resolved once at construction from `IRONCLAW_OAUTH_PROXY_AUTH_TOKEN`,
+    /// Resolved once at construction from `OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN`,
     /// then `GATEWAY_AUTH_TOKEN` as a backward-compatible fallback.
     oauth_proxy_auth_token: Option<String>,
     /// Relay config captured at startup. Used by `auth_channel_relay` and
@@ -619,7 +619,7 @@ impl ExtensionManager {
     /// instead of calling `open::that()` on the server.
     ///
     /// `base_url` is the gateway's own public URL (e.g. `https://my-gateway.example.com`),
-    /// used to build OAuth redirect URIs when `IRONCLAW_OAUTH_CALLBACK_URL` is not set.
+    /// used to build OAuth redirect URIs when `OPTIMCLAW_OAUTH_CALLBACK_URL` is not set.
     pub async fn enable_gateway_mode(&self, base_url: String) {
         self.gateway_mode
             .store(true, std::sync::atomic::Ordering::Release);
@@ -631,7 +631,7 @@ impl ExtensionManager {
     ///
     /// Gateway mode is active when any of:
     /// - `enable_gateway_mode()` was called (web gateway is running), OR
-    /// - `IRONCLAW_OAUTH_CALLBACK_URL` is set to a non-loopback URL, OR
+    /// - `OPTIMCLAW_OAUTH_CALLBACK_URL` is set to a non-loopback URL, OR
     /// - `self.tunnel_url` is set to a non-loopback URL
     pub fn should_use_gateway_mode(&self) -> bool {
         if self.gateway_mode.load(std::sync::atomic::Ordering::Acquire) {
@@ -652,7 +652,7 @@ impl ExtensionManager {
     /// Returns the OAuth redirect URI for gateway mode, or `None` for local mode.
     ///
     /// Priority:
-    /// 1. `IRONCLAW_OAUTH_CALLBACK_URL` env var (via `callback_url()`)
+    /// 1. `OPTIMCLAW_OAUTH_CALLBACK_URL` env var (via `callback_url()`)
     /// 2. `gateway_base_url` (set by `enable_gateway_mode()`)
     /// 3. `tunnel_url` (from config)
     /// 4. `None` (local/CLI mode)
@@ -1251,7 +1251,7 @@ impl ExtensionManager {
     /// Broadcast an extension status change to the web UI via SSE.
     async fn broadcast_extension_status(&self, name: &str, status: &str, message: Option<&str>) {
         if let Some(ref sse) = *self.sse_manager.read().await {
-            sse.broadcast(ironclaw_common::AppEvent::ExtensionStatus {
+            sse.broadcast(optimclaw_common::AppEvent::ExtensionStatus {
                 extension_name: name.to_string(),
                 status: status.to_string(),
                 message: message.map(|m| m.to_string()),
@@ -1756,7 +1756,7 @@ impl ExtensionManager {
                     .await;
 
                 Ok(format!(
-                    "Removed channel '{}'. Restart IronClaw for the change to take effect.",
+                    "Removed channel '{}'. Restart OptimClaw for the change to take effect.",
                     name
                 ))
             }
@@ -2630,7 +2630,7 @@ impl ExtensionManager {
                 ExtensionError::InstallFailed(format!(
                     "'{}' requires building from source. Build artifact not found. \
                          Run `cargo component build --release` in {} first, \
-                         or use `ironclaw registry install {}`.",
+                         or use `optimclaw registry install {}`.",
                     name,
                     resolved_dir.display(),
                     name,
@@ -3720,7 +3720,7 @@ impl ExtensionManager {
                 }
 
                 if let Some(ref sse) = sse_manager {
-                    sse.broadcast(ironclaw_common::AppEvent::AuthCompleted {
+                    sse.broadcast(optimclaw_common::AppEvent::AuthCompleted {
                         extension_name: ext_name,
                         success,
                         message,
@@ -4661,7 +4661,7 @@ impl ExtensionManager {
             ExtensionError::Config(e.to_string())
         })?;
 
-        // Generate CSRF nonce — IronClaw validates this on the callback to ensure
+        // Generate CSRF nonce — OptimClaw validates this on the callback to ensure
         // the OAuth completion is legitimate. Channel-relay embeds it in the signed
         // state and appends it to the post-OAuth redirect URL.
         let state_nonce = uuid::Uuid::new_v4().to_string();
@@ -7361,7 +7361,7 @@ mod tests {
                 Ok(TelegramBindingResult::Pending(VerificationChallenge {
                     code: "iclaw-7qk2m9".to_string(),
                     instructions:
-                        "Send `/start iclaw-7qk2m9` to @test_hot_bot in Telegram. IronClaw will finish setup automatically."
+                        "Send `/start iclaw-7qk2m9` to @test_hot_bot in Telegram. OptimClaw will finish setup automatically."
                             .to_string(),
                     deep_link: Some("https://t.me/test_hot_bot?start=iclaw-7qk2m9".to_string()),
                 }))
@@ -8363,7 +8363,7 @@ mod tests {
     // Regression tests for a bug where MCP OAuth called `open::that()` on the
     // server machine instead of returning an auth URL to the gateway frontend.
     // The root cause was that `should_use_gateway_mode()` only checked the
-    // `IRONCLAW_OAUTH_CALLBACK_URL` env var, ignoring `self.tunnel_url`.
+    // `OPTIMCLAW_OAUTH_CALLBACK_URL` env var, ignoring `self.tunnel_url`.
 
     /// Build a minimal ExtensionManager with a custom tunnel_url.
     fn make_manager_with_tunnel(tunnel_url: Option<String>) -> ExtensionManager {
@@ -8377,7 +8377,7 @@ mod tests {
             Arc::new(InMemorySecretsStore::new(crypto));
         let tools = Arc::new(crate::tools::ToolRegistry::new());
         let mcp = Arc::new(McpSessionManager::new());
-        let dir = std::env::temp_dir().join("ironclaw-test-gateway-mode");
+        let dir = std::env::temp_dir().join("optimclaw-test-gateway-mode");
 
         ExtensionManager::new(
             mcp,
@@ -8398,10 +8398,10 @@ mod tests {
     #[test]
     fn should_use_gateway_mode_true_for_tunnel_url() {
         let _guard = crate::config::helpers::lock_env();
-        let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+        let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
         // SAFETY: Under ENV_MUTEX, no concurrent env access.
         unsafe {
-            std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+            std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
         }
 
         let mgr = make_manager_with_tunnel(Some("https://my-gateway.example.com".into()));
@@ -8412,7 +8412,7 @@ mod tests {
 
         unsafe {
             if let Some(val) = original {
-                std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
             }
         }
     }
@@ -8420,9 +8420,9 @@ mod tests {
     #[test]
     fn should_use_gateway_mode_false_without_tunnel() {
         let _guard = crate::config::helpers::lock_env();
-        let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+        let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
         unsafe {
-            std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+            std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
         }
 
         let mgr = make_manager_with_tunnel(None);
@@ -8433,7 +8433,7 @@ mod tests {
 
         unsafe {
             if let Some(val) = original {
-                std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
             }
         }
     }
@@ -8441,9 +8441,9 @@ mod tests {
     #[test]
     fn should_use_gateway_mode_false_for_loopback_tunnel() {
         let _guard = crate::config::helpers::lock_env();
-        let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+        let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
         unsafe {
-            std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+            std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
         }
 
         let mgr = make_manager_with_tunnel(Some("http://127.0.0.1:3001".into()));
@@ -8454,13 +8454,13 @@ mod tests {
 
         unsafe {
             if let Some(val) = original {
-                std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
             }
         }
     }
 
     /// Helper to run an async test body while holding the env mutex.
-    /// Clears `IRONCLAW_OAUTH_CALLBACK_URL` for the duration, restoring on drop.
+    /// Clears `OPTIMCLAW_OAUTH_CALLBACK_URL` for the duration, restoring on drop.
     struct EnvGuard {
         original: Option<String>,
         _mutex: std::sync::MutexGuard<'static, ()>,
@@ -8469,10 +8469,10 @@ mod tests {
     impl EnvGuard {
         fn new() -> Self {
             let guard = crate::config::helpers::lock_env();
-            let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+            let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
             // SAFETY: Under ENV_MUTEX, no concurrent env access.
             unsafe {
-                std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+                std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
             }
             Self {
                 original,
@@ -8486,9 +8486,9 @@ mod tests {
             // SAFETY: Under ENV_MUTEX (still held by _mutex), no concurrent env access.
             unsafe {
                 if let Some(ref val) = self.original {
-                    std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                    std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
                 } else {
-                    std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+                    std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
                 }
             }
         }
@@ -8527,10 +8527,10 @@ mod tests {
     #[test]
     fn gateway_callback_redirect_uri_does_not_duplicate_callback_path_from_env() {
         let _guard = crate::config::helpers::lock_env();
-        let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+        let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
         unsafe {
             std::env::set_var(
-                "IRONCLAW_OAUTH_CALLBACK_URL",
+                "OPTIMCLAW_OAUTH_CALLBACK_URL",
                 "https://oauth.test.example/oauth/callback",
             );
         }
@@ -8543,9 +8543,9 @@ mod tests {
 
         unsafe {
             if let Some(val) = original {
-                std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
             } else {
-                std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+                std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
             }
         }
     }
@@ -8553,10 +8553,10 @@ mod tests {
     #[test]
     fn gateway_callback_redirect_uri_trims_trailing_slash_from_env_callback() {
         let _guard = crate::config::helpers::lock_env();
-        let original = std::env::var("IRONCLAW_OAUTH_CALLBACK_URL").ok();
+        let original = std::env::var("OPTIMCLAW_OAUTH_CALLBACK_URL").ok();
         unsafe {
             std::env::set_var(
-                "IRONCLAW_OAUTH_CALLBACK_URL",
+                "OPTIMCLAW_OAUTH_CALLBACK_URL",
                 "https://oauth.test.example/oauth/callback/",
             );
         }
@@ -8569,9 +8569,9 @@ mod tests {
 
         unsafe {
             if let Some(val) = original {
-                std::env::set_var("IRONCLAW_OAUTH_CALLBACK_URL", val);
+                std::env::set_var("OPTIMCLAW_OAUTH_CALLBACK_URL", val);
             } else {
-                std::env::remove_var("IRONCLAW_OAUTH_CALLBACK_URL");
+                std::env::remove_var("OPTIMCLAW_OAUTH_CALLBACK_URL");
             }
         }
     }

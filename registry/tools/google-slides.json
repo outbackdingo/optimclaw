@@ -17,7 +17,7 @@
   },
   "artifacts": {
     "wasm32-wasip2": {
-      "url": "https://github.com/nearai/ironclaw/releases/download/ironclaw-v0.22.0/tool-google-slides-0.2.1-wasm32-wasip2.tar.gz",
+      "url": "https://github.com/nearai/optimclaw/releases/download/optimclaw-v0.22.0/tool-google-slides-0.2.1-wasm32-wasip2.tar.gz",
       "sha256": "e2528be5da02f1b8cfc8ee9b0cdd849516c53d412e2f75c6175b3bded7f512cb"
     }
   },

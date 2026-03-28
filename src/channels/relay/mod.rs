@@ -2,7 +2,7 @@
 //! (Slack) via the channel-relay service.
 //!
 //! The relay service handles OAuth, credential storage, and webhook ingestion.
-//! IronClaw receives events via webhook callbacks and sends messages via the
+//! OptimClaw receives events via webhook callbacks and sends messages via the
 //! relay's proxy API.
 
 pub mod channel;

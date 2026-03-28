@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="ironclaw.png?v=2" alt="IronClaw" width="200"/>
+  <img src="optimclaw.png?v=2" alt="OptimClaw" width="200"/>
 </p>
 
-<h1 align="center">IronClaw</h1>
+<h1 align="center">OptimClaw</h1>
 
 <p align="center">
   <strong>安全可靠的个人 AI 助手，始终站在你这边</strong>
@@ -10,8 +10,8 @@
 
 <p align="center">
   <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache%202.0-blue.svg" alt="License: MIT OR Apache-2.0" /></a>
-  <a href="https://t.me/ironclawAI"><img src="https://img.shields.io/badge/Telegram-%40ironclawAI-26A5E4?style=flat&logo=telegram&logoColor=white" alt="Telegram: @ironclawAI" /></a>
-  <a href="https://www.reddit.com/r/ironclawAI/"><img src="https://img.shields.io/badge/Reddit-r%2FironclawAI-FF4500?style=flat&logo=reddit&logoColor=white" alt="Reddit: r/ironclawAI" /></a>
+  <a href="https://t.me/optimclawAI"><img src="https://img.shields.io/badge/Telegram-%40optimclawAI-26A5E4?style=flat&logo=telegram&logoColor=white" alt="Telegram: @optimclawAI" /></a>
+  <a href="https://www.reddit.com/r/optimclawAI/"><img src="https://img.shields.io/badge/Reddit-r%2FoptimclawAI-FF4500?style=flat&logo=reddit&logoColor=white" alt="Reddit: r/optimclawAI" /></a>
 </p>
 
 <p align="center">
@@ -34,16 +34,16 @@
 
 ## 设计理念
 
-IronClaw 基于一个简单的原则：**你的 AI 助手应该为你服务，而不是与你为敌。**
+OptimClaw 基于一个简单的原则：**你的 AI 助手应该为你服务，而不是与你为敌。**
 
-在 AI 系统对数据处理日益不透明、与企业利益捆绑的今天，IronClaw 选择了一条不同的路：
+在 AI 系统对数据处理日益不透明、与企业利益捆绑的今天，OptimClaw 选择了一条不同的路：
 
 - **数据归你所有** — 所有信息存储在本地，加密保护，始终在你掌控之下
 - **透明至上** — 完全开源，可审计，没有隐藏的遥测或数据收集
 - **自主扩展** — 随时构建新工具，无需等待供应商更新
 - **纵深防御** — 多层安全机制抵御提示注入和数据泄露
 
-IronClaw 是一个你真正可以信赖的 AI 助手，无论是个人生活还是工作。
+OptimClaw 是一个你真正可以信赖的 AI 助手，无论是个人生活还是工作。
 
 ## 功能特性
 
@@ -66,7 +66,7 @@ IronClaw 是一个你真正可以信赖的 AI 助手，无论是个人生活还�
 
 ### 自主扩展
 
-- **动态工具构建** — 描述你的需求，IronClaw 会将其构建为 WASM 工具
+- **动态工具构建** — 描述你的需求，OptimClaw 会将其构建为 WASM 工具
 - **MCP 协议** — 连接模型上下文协议（Model Context Protocol）服务器以获取额外能力
 - **插件架构** — 无需重启即可加载新的 WASM 工具和渠道
 
@@ -86,12 +86,12 @@ IronClaw 是一个你真正可以信赖的 AI 助手，无论是个人生活还�
 
 ## 下载或编译
 
-访问 [Releases 页面](https://github.com/nearai/ironclaw/releases/) 查看最新版本。
+访问 [Releases 页面](https://github.com/nearai/optimclaw/releases/) 查看最新版本。
 
 <details>
   <summary>通过 Windows 安装程序安装 (Windows)</summary>
 
-下载 [Windows 安装程序](https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-x86_64-pc-windows-msvc.msi) 并运行。
+下载 [Windows 安装程序](https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-x86_64-pc-windows-msvc.msi) 并运行。
 
 </details>
 
@@ -99,7 +99,7 @@ IronClaw 是一个你真正可以信赖的 AI 助手，无论是个人生活还�
   <summary>通过 PowerShell 脚本安装 (Windows)</summary>
 
 ```sh
-irm https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.ps1 | iex
+irm https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-installer.ps1 | iex
 ```
 
 </details>
@@ -108,7 +108,7 @@ irm https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-install
   <summary>通过 Shell 脚本安装 (macOS、Linux、Windows/WSL)</summary>
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/optimclaw/releases/latest/download/optimclaw-installer.sh | sh
 ```
 </details>
 
@@ -116,7 +116,7 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nearai/ironclaw/release
   <summary>通过 Homebrew 安装 (macOS/Linux)</summary>
 
 ```sh
-brew install ironclaw
+brew install optimclaw
 ```
 
 </details>
@@ -128,8 +128,8 @@ brew install ironclaw
 
 ```bash
 # 克隆仓库
-git clone https://github.com/nearai/ironclaw.git
-cd ironclaw
+git clone https://github.com/nearai/optimclaw.git
+cd optimclaw
 
 # 编译
 cargo build --release
@@ -146,25 +146,25 @@ cargo test
 
 ```bash
 # 创建数据库
-createdb ironclaw
+createdb optimclaw
 
 # 启用 pgvector 扩展
-psql ironclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
+psql optimclaw -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
 ## 配置
 
-运行设置向导来配置 IronClaw：
+运行设置向导来配置 OptimClaw：
 
 ```bash
-ironclaw onboard
+optimclaw onboard
 ```
 
-向导将引导你完成数据库连接、NEAR AI 身份验证（通过浏览器 OAuth）和密钥加密（使用系统钥匙串）。设置会保存在数据库中；引导变量（如 `DATABASE_URL`、`LLM_BACKEND`）写入 `~/.ironclaw/.env`，以便在数据库连接前可用。
+向导将引导你完成数据库连接、NEAR AI 身份验证（通过浏览器 OAuth）和密钥加密（使用系统钥匙串）。设置会保存在数据库中；引导变量（如 `DATABASE_URL`、`LLM_BACKEND`）写入 `~/.optimclaw/.env`，以便在数据库连接前可用。
 
 ### 替代 LLM 提供商
 
-IronClaw 默认使用 NEAR AI，但开箱即用地支持多种 LLM 提供商。
+OptimClaw 默认使用 NEAR AI，但开箱即用地支持多种 LLM 提供商。
 内置提供商包括 **Anthropic**、**OpenAI**、**GitHub Copilot**、**Google Gemini**、**MiniMax**、**Mistral** 和 **Ollama**（本地部署）。同时也支持 OpenAI 兼容服务，如 **OpenRouter**（300+ 模型）、**Together AI**、**Fireworks AI** 以及自托管服务器（**vLLM**、**LiteLLM**）。
 
 在向导中选择你的提供商，或直接设置环境变量：
@@ -185,7 +185,7 @@ LLM_MODEL=anthropic/claude-sonnet-4
 
 ## 安全机制
 
-IronClaw 实现了纵深防御策略来保护你的数据并防止滥用。
+OptimClaw 实现了纵深防御策略来保护你的数据并防止滥用。
 
 ### WASM 沙箱
 
@@ -278,13 +278,13 @@ WASM ──► 白名单  ──► 泄露扫描 ──► 凭据  ──► 执
 
 ```bash
 # 首次设置（配置数据库、认证等）
-ironclaw onboard
+optimclaw onboard
 
 # 启动交互式 REPL
 cargo run
 
 # 启用调试日志
-RUST_LOG=ironclaw=debug cargo run
+RUST_LOG=optimclaw=debug cargo run
 ```
 
 ## 开发
@@ -297,7 +297,7 @@ cargo fmt
 cargo clippy --all --benches --tests --examples --all-features
 
 # 运行测试
-createdb ironclaw_test
+createdb optimclaw_test
 cargo test
 
 # 运行指定测试
@@ -309,7 +309,7 @@ cargo test test_name
 
 ## OpenClaw 传承
 
-IronClaw 是受 [OpenClaw](https://github.com/openclaw/openclaw) 启发的 Rust 重新实现。参见 [FEATURE_PARITY.md](FEATURE_PARITY.md) 了解完整的功能追踪矩阵。
+OptimClaw 是受 [OpenClaw](https://github.com/openclaw/openclaw) 启发的 Rust 重新实现。参见 [FEATURE_PARITY.md](FEATURE_PARITY.md) 了解完整的功能追踪矩阵。
 
 主要差异：
 

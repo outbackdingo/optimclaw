@@ -1,11 +1,11 @@
 // Feishu API types have fields reserved for future use.
 #![allow(dead_code)]
 
-//! Feishu/Lark Bot channel for IronClaw.
+//! Feishu/Lark Bot channel for OptimClaw.
 //!
 //! This WASM component implements the channel interface for handling Feishu
 //! webhooks (Event Subscription v2.0) and sending messages back via the
-//! Feishu/Lark Bot API. IronClaw currently does not connect to Feishu's
+//! Feishu/Lark Bot API. OptimClaw currently does not connect to Feishu's
 //! long-connection websocket subscription mode; use Event Subscription
 //! webhooks for this channel.
 //!

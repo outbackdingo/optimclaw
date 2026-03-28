@@ -461,7 +461,7 @@ impl McpClient {
                         }
                     }
                     return Err(ToolError::ExternalService(format!(
-                        "MCP server '{}' requires authentication. Run: ironclaw mcp auth {}",
+                        "MCP server '{}' requires authentication. Run: optimclaw mcp auth {}",
                         self.server_name, self.server_name
                     )));
                 }

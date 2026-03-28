@@ -2,11 +2,11 @@
 
 use crate::channels::web::types::{ToolCallInfo, TurnInfo};
 
-pub use ironclaw_common::truncate_preview;
+pub use optimclaw_common::truncate_preview;
 
 /// Convert stored tool errors into plain text suitable for UI display.
 pub fn tool_error_for_display(error: &str) -> String {
-    ironclaw_safety::SafetyLayer::unwrap_tool_output(error).unwrap_or_else(|| error.to_string())
+    optimclaw_safety::SafetyLayer::unwrap_tool_output(error).unwrap_or_else(|| error.to_string())
 }
 
 /// Parse tool call summary JSON objects into `ToolCallInfo` structs.

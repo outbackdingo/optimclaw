@@ -305,7 +305,7 @@ pub fn confirm(prompt: &str, default: bool) -> io::Result<bool> {
 pub fn print_banner() {
     use crate::cli::fmt;
     println!();
-    println!("  {}ironclaw{}", fmt::bold_accent(), fmt::reset());
+    println!("  {}optimclaw{}", fmt::bold_accent(), fmt::reset());
     println!();
 }
 
@@ -314,7 +314,7 @@ pub fn print_banner() {
 /// # Example
 ///
 /// ```ignore
-/// print_header("IronClaw Setup Wizard");
+/// print_header("OptimClaw Setup Wizard");
 /// ```
 pub fn print_header(text: &str) {
     let width = text.len() + 4;

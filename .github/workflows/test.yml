@@ -165,7 +165,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Build Docker image
-        run: docker build -t ironclaw-test:ci .
+        run: docker build -t optimclaw-test:ci .
 
   version-check:
     name: Version Bump Check

@@ -1,4 +1,4 @@
-//! Application builder for initializing core IronClaw components.
+//! Application builder for initializing core OptimClaw components.
 //!
 //! Extracts the mechanical initialization phases from `main.rs` into a
 //! reusable builder so that:
@@ -602,7 +602,7 @@ impl AppBuilder {
                                         {
                                             tracing::warn!(
                                                 "MCP server '{}' requires authentication. \
-                                                 Run: ironclaw mcp auth {}",
+                                                 Run: optimclaw mcp auth {}",
                                                 server_name,
                                                 server_name
                                             );

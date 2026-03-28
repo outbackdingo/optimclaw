@@ -9,26 +9,26 @@ use secrecy::SecretString;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 
-use ironclaw::agent::routine_engine::RoutineEngine;
-use ironclaw::agent::{Agent, AgentDeps, SessionManager as AgentSessionManager};
-use ironclaw::app::{AppBuilder, AppBuilderFlags};
-use ironclaw::channels::IncomingMessage;
-use ironclaw::channels::web::auth::MultiAuthState;
-use ironclaw::channels::web::log_layer::LogBroadcaster;
-use ironclaw::channels::web::server::{
+use optimclaw::agent::routine_engine::RoutineEngine;
+use optimclaw::agent::{Agent, AgentDeps, SessionManager as AgentSessionManager};
+use optimclaw::app::{AppBuilder, AppBuilderFlags};
+use optimclaw::channels::IncomingMessage;
+use optimclaw::channels::web::auth::MultiAuthState;
+use optimclaw::channels::web::log_layer::LogBroadcaster;
+use optimclaw::channels::web::server::{
     GatewayState, PerUserRateLimiter, RateLimiter, start_server,
 };
-use ironclaw::channels::web::sse::SseManager;
-use ironclaw::channels::web::ws::WsConnectionTracker;
-use ironclaw::config::{Config, RegistryProviderConfig, RoutineConfig};
-use ironclaw::db::Database;
-use ironclaw::db::libsql::LibSqlBackend;
-use ironclaw::llm::registry::ProviderProtocol;
-use ironclaw::llm::{
+use optimclaw::channels::web::sse::SseManager;
+use optimclaw::channels::web::ws::WsConnectionTracker;
+use optimclaw::config::{Config, RegistryProviderConfig, RoutineConfig};
+use optimclaw::db::Database;
+use optimclaw::db::libsql::LibSqlBackend;
+use optimclaw::llm::registry::ProviderProtocol;
+use optimclaw::llm::{
     SessionConfig as LlmSessionConfig, SessionManager as LlmSessionManager, create_llm_provider,
 };
-use ironclaw::secrets::SecretsStore;
-use ironclaw::tools::{Tool, ToolError, ToolOutput};
+use optimclaw::secrets::SecretsStore;
+use optimclaw::tools::{Tool, ToolError, ToolOutput};
 
 use crate::support::test_channel::{TestChannel, TestChannelHandle};
 
@@ -51,7 +51,7 @@ impl Tool for MockGithubWebhookTool {
     async fn execute(
         &self,
         params: serde_json::Value,
-        _ctx: &ironclaw::context::JobContext,
+        _ctx: &optimclaw::context::JobContext,
     ) -> Result<ToolOutput, ToolError> {
         let event = params
             .pointer("/webhook/headers/x-github-event")
@@ -91,8 +91,8 @@ impl Tool for MockGithubWebhookTool {
         ))
     }
 
-    fn webhook_capability(&self) -> Option<ironclaw::tools::wasm::WebhookCapability> {
-        Some(ironclaw::tools::wasm::WebhookCapability {
+    fn webhook_capability(&self) -> Option<optimclaw::tools::wasm::WebhookCapability> {
+        Some(optimclaw::tools::wasm::WebhookCapability {
             secret_name: Some("github_webhook_secret".to_string()),
             secret_header: Some("x-webhook-secret".to_string()),
             ..Default::default()
@@ -195,7 +195,7 @@ impl GatewayWorkflowHarness {
 
         let test_channel = Arc::new(TestChannel::new());
         let handle = TestChannelHandle::with_name(Arc::clone(&test_channel), "gateway");
-        let channel_manager = ironclaw::channels::ChannelManager::new();
+        let channel_manager = optimclaw::channels::ChannelManager::new();
         channel_manager.add(Box::new(handle)).await;
         let channels = Arc::new(channel_manager);
 
@@ -208,7 +208,7 @@ impl GatewayWorkflowHarness {
             }
         });
 
-        let scheduler_slot: ironclaw::tools::builtin::SchedulerSlot =
+        let scheduler_slot: optimclaw::tools::builtin::SchedulerSlot =
             Arc::new(tokio::sync::RwLock::new(None));
         let agent_session_manager = Arc::new(AgentSessionManager::new());
 
@@ -239,7 +239,7 @@ impl GatewayWorkflowHarness {
             cost_guard: Some(Arc::clone(&components.cost_guard)),
             routine_engine: Arc::clone(&routine_slot),
             startup_time: Instant::now(),
-            active_config: ironclaw::channels::web::server::ActiveConfigSnapshot::default(),
+            active_config: optimclaw::channels::web::server::ActiveConfigSnapshot::default(),
             secrets_store: None,
             db_auth: None,
         });
@@ -265,10 +265,10 @@ impl GatewayWorkflowHarness {
                 transcription: None,
                 document_extraction: None,
                 sandbox_readiness:
-                    ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+                    optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
                 builder: None,
                 llm_backend: "nearai".to_string(),
-                tenant_rates: std::sync::Arc::new(ironclaw::tenant::TenantRateRegistry::new(4, 3)),
+                tenant_rates: std::sync::Arc::new(optimclaw::tenant::TenantRateRegistry::new(4, 3)),
             },
             channels,
             None,
@@ -306,8 +306,8 @@ impl GatewayWorkflowHarness {
         .await
         .expect("failed to start gateway server");
 
-        let webhook_secrets = Arc::new(ironclaw::secrets::InMemorySecretsStore::new(Arc::new(
-            ironclaw::secrets::SecretsCrypto::new(SecretString::from(
+        let webhook_secrets = Arc::new(optimclaw::secrets::InMemorySecretsStore::new(Arc::new(
+            optimclaw::secrets::SecretsCrypto::new(SecretString::from(
                 "test-key-at-least-32-chars-long!!".to_string(),
             ))
             .expect("crypto"),
@@ -315,22 +315,22 @@ impl GatewayWorkflowHarness {
         webhook_secrets
             .create(
                 &user_id,
-                ironclaw::secrets::CreateSecretParams::new(
+                optimclaw::secrets::CreateSecretParams::new(
                     "github_webhook_secret",
                     "test-webhook-secret",
                 ),
             )
             .await
             .expect("store webhook secret");
-        let webhook_state = ironclaw::webhooks::ToolWebhookState {
+        let webhook_state = optimclaw::webhooks::ToolWebhookState {
             tools: Arc::clone(gateway_state.tool_registry.as_ref().expect("tool registry")),
             routine_engine: Arc::clone(&routine_slot),
             user_id: user_id.clone(),
             secrets_store: Some(
-                webhook_secrets as Arc<dyn ironclaw::secrets::SecretsStore + Send + Sync>,
+                webhook_secrets as Arc<dyn optimclaw::secrets::SecretsStore + Send + Sync>,
             ),
         };
-        let webhook_app = ironclaw::webhooks::routes(webhook_state);
+        let webhook_app = optimclaw::webhooks::routes(webhook_state);
         let webhook_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
             .await
             .expect("failed to bind webhook listener");

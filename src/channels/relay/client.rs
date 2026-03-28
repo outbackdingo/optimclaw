@@ -119,7 +119,7 @@ impl RelayClient {
     /// Calls `GET /oauth/slack/auth` with `redirect(Policy::none())` and
     /// returns the `Location` header (Slack OAuth URL) without following it.
     /// Initiate Slack OAuth. Channel-relay derives all URLs from the trusted
-    /// instance_url in chat-api. IronClaw only passes an optional CSRF nonce
+    /// instance_url in chat-api. OptimClaw only passes an optional CSRF nonce
     /// for validating the callback — no URLs.
     pub async fn initiate_oauth(&self, state_nonce: Option<&str>) -> Result<String, RelayError> {
         let url = format!("{}/oauth/slack/auth", self.base_url);

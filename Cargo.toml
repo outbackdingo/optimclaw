@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "crates/ironclaw_common", "crates/ironclaw_safety"]
+members = [".", "crates/optimclaw_common", "crates/optimclaw_safety"]
 exclude = [
     "channels-src/discord",
     "channels-src/telegram",
@@ -15,19 +15,19 @@ exclude = [
     "tools-src/slack",
     "tools-src/telegram",
     "fuzz",
-    "crates/ironclaw_safety/fuzz",
+    "crates/optimclaw_safety/fuzz",
 ]
 
 [package]
-name = "ironclaw"
+name = "optimclaw"
 version = "0.22.0"
 edition = "2024"
 rust-version = "1.92"
 description = "Secure personal AI assistant that protects your data and expands its capabilities on the fly"
 authors = ["NEAR AI <support@near.ai>"]
 license = "MIT OR Apache-2.0"
-homepage = "https://github.com/nearai/ironclaw"
-repository = "https://github.com/nearai/ironclaw"
+homepage = "https://github.com/nearai/optimclaw"
+repository = "https://github.com/nearai/optimclaw"
 
 [package.metadata.wix]
 upgrade-guid = "D0156E61-BA37-451E-8AB9-1A2ECCCFA48F"
@@ -102,10 +102,10 @@ tower-http = { version = "0.6", features = ["trace", "cors", "set-header", "catc
 cron = "0.13"
 
 # Shared types
-ironclaw_common = { path = "crates/ironclaw_common", version = "0.1.0" }
+optimclaw_common = { path = "crates/optimclaw_common", version = "0.1.0" }
 
 # Safety/sanitization
-ironclaw_safety = { path = "crates/ironclaw_safety", version = "0.2.0" }
+optimclaw_safety = { path = "crates/optimclaw_safety", version = "0.2.0" }
 regex = "1"
 aho-corasick = "1"
 

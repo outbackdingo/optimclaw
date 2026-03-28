@@ -120,9 +120,9 @@ pub struct ApprovalRequest {
     pub thread_id: Option<String>,
 }
 
-// --- App Event (re-exported from ironclaw_common) ---
+// --- App Event (re-exported from optimclaw_common) ---
 
-pub use ironclaw_common::{AppEvent, ToolDecisionDto};
+pub use optimclaw_common::{AppEvent, ToolDecisionDto};
 
 // --- Memory ---
 

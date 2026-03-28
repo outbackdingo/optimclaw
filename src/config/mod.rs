@@ -1,7 +1,7 @@
-//! Configuration for IronClaw.
+//! Configuration for OptimClaw.
 //!
 //! Settings are loaded with priority: env var > database > default.
-//! `DATABASE_URL` lives in `~/.ironclaw/.env` (loaded via dotenvy early
+//! `DATABASE_URL` lives in `~/.optimclaw/.env` (loaded via dotenvy early
 //! in startup). Everything else comes from env vars, the DB settings
 //! table, or auto-detection.
 
@@ -141,7 +141,7 @@ impl Config {
                 http: None,
                 gateway: None,
                 signal: None,
-                wasm_channels_dir: std::env::temp_dir().join("ironclaw-test-channels"),
+                wasm_channels_dir: std::env::temp_dir().join("optimclaw-test-channels"),
                 wasm_channels_enabled: false,
                 wasm_channel_owner_ids: HashMap::new(),
             },
@@ -202,7 +202,7 @@ impl Config {
         toml_path: Option<&std::path::Path>,
     ) -> Result<Self, ConfigError> {
         let _ = dotenvy::dotenv();
-        crate::bootstrap::load_ironclaw_env();
+        crate::bootstrap::load_optimclaw_env();
 
         // Load all settings from DB into a Settings struct
         let mut db_settings = match store.get_all_settings(user_id).await {
@@ -225,7 +225,7 @@ impl Config {
     /// and by CLI commands that don't have DB access.
     /// Falls back to legacy `settings.json` on disk if present.
     ///
-    /// Loads both `./.env` (standard, higher priority) and `~/.ironclaw/.env`
+    /// Loads both `./.env` (standard, higher priority) and `~/.optimclaw/.env`
     /// (lower priority) via dotenvy, which never overwrites existing vars.
     pub async fn from_env() -> Result<Self, ConfigError> {
         Self::from_env_with_toml(None).await
@@ -242,7 +242,7 @@ impl Config {
     /// Load and merge a TOML config file into settings.
     ///
     /// If `explicit_path` is `Some`, loads from that path (errors are fatal).
-    /// If `None`, tries the default path `~/.ironclaw/config.toml` (missing
+    /// If `None`, tries the default path `~/.optimclaw/config.toml` (missing
     /// file is silently ignored).
     fn apply_toml_overlay(
         settings: &mut Settings,
@@ -351,7 +351,7 @@ pub(crate) fn load_bootstrap_settings(
     toml_path: Option<&std::path::Path>,
 ) -> Result<Settings, ConfigError> {
     let _ = dotenvy::dotenv();
-    crate::bootstrap::load_ironclaw_env();
+    crate::bootstrap::load_optimclaw_env();
 
     let mut settings = Settings::load();
     Config::apply_toml_overlay(&mut settings, toml_path)?;
@@ -359,7 +359,7 @@ pub(crate) fn load_bootstrap_settings(
 }
 
 pub(crate) fn resolve_owner_id(settings: &Settings) -> Result<String, ConfigError> {
-    let env_owner_id = self::helpers::optional_env("IRONCLAW_OWNER_ID")?;
+    let env_owner_id = self::helpers::optional_env("OPTIMCLAW_OWNER_ID")?;
     let settings_owner_id = settings.owner_id.clone();
     let configured_owner_id = env_owner_id.clone().or(settings_owner_id.clone());
 
@@ -376,7 +376,7 @@ pub(crate) fn resolve_owner_id(settings: &Settings) -> Result<String, ConfigErro
     {
         WARNED_EXPLICIT_DEFAULT_OWNER_ID.call_once(|| {
             tracing::warn!(
-                "IRONCLAW_OWNER_ID resolved to the legacy 'default' scope explicitly; durable state will keep legacy owner behavior"
+                "OPTIMCLAW_OWNER_ID resolved to the legacy 'default' scope explicitly; durable state will keep legacy owner behavior"
             );
         });
     }

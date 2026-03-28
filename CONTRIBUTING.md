@@ -3,8 +3,8 @@
 ## Getting Started
 
 ```bash
-git clone https://github.com/nearai/ironclaw.git
-cd ironclaw
+git clone https://github.com/nearai/optimclaw.git
+cd optimclaw
 ./scripts/dev-setup.sh
 ```
 
@@ -53,7 +53,7 @@ Select the appropriate track in the PR template based on what your changes touch
 
 ## Database Changes
 
-IronClaw uses dual-backend persistence (PostgreSQL + libSQL). All new persistence features must support both backends. See `src/db/CLAUDE.md`.
+OptimClaw uses dual-backend persistence (PostgreSQL + libSQL). All new persistence features must support both backends. See `src/db/CLAUDE.md`.
 
 ## Adding Dependencies
 

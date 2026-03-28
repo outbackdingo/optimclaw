@@ -1,4 +1,4 @@
-//! Google Docs WASM Tool for IronClaw.
+//! Google Docs WASM Tool for OptimClaw.
 //!
 //! Provides Google Docs integration for creating, reading, editing,
 //! and formatting documents. Use Google Drive tool to search for
@@ -209,7 +209,7 @@ impl exports::near::agent::tool::Guest for GoogleDocsTool {
 fn execute_inner(params: &str) -> Result<String, String> {
     if !crate::near::agent::host::secret_exists("google_oauth_token") {
         return Err(
-            "Google OAuth token not configured. Run `ironclaw tool auth google-docs` to set up \
+            "Google OAuth token not configured. Run `optimclaw tool auth google-docs` to set up \
              OAuth, or set the GOOGLE_OAUTH_TOKEN environment variable."
                 .to_string(),
         );

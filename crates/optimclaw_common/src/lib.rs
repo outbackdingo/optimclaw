@@ -1,4 +1,4 @@
-//! Shared types and utilities for the IronClaw workspace.
+//! Shared types and utilities for the OptimClaw workspace.
 
 mod event;
 mod util;

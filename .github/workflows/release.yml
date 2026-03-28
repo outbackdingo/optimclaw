@@ -166,7 +166,7 @@ jobs:
               continue
             fi
             name=$(echo "$filename" | sed "s/^${kind}-//" | sed 's/-[0-9].*-wasm32-wasip2\.tar\.gz$//')
-            url="https://github.com/nearai/ironclaw/releases/download/${RELEASE_TAG}/${filename}"
+            url="https://github.com/nearai/optimclaw/releases/download/${RELEASE_TAG}/${filename}"
 
             manifest="registry/${kind}s/${name}.json"
             if [ -f "$manifest" ]; then
@@ -496,7 +496,7 @@ jobs:
               continue
             fi
             name=$(echo "$filename" | sed "s/^${kind}-//" | sed 's/-[0-9].*-wasm32-wasip2\.tar\.gz$//')
-            url="https://github.com/nearai/ironclaw/releases/download/${RELEASE_TAG}/${filename}"
+            url="https://github.com/nearai/optimclaw/releases/download/${RELEASE_TAG}/${filename}"
 
             manifest="registry/${kind}s/${name}.json"
             if [ -f "$manifest" ]; then

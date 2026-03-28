@@ -1,13 +1,13 @@
 //! Orphaned Docker container cleanup.
 //!
-//! The SandboxReaper periodically scans Docker for IronClaw-labeled containers
+//! The SandboxReaper periodically scans Docker for OptimClaw-labeled containers
 //! and cleans up those whose corresponding jobs are not active.
 //!
 //! **Problem:** If the agent process crashes between container creation and cleanup,
 //! containers are orphaned indefinitely.
 //!
 //! **Solution:** Background reaper task that:
-//! 1. Scans Docker for containers with the `ironclaw.job_id` label
+//! 1. Scans Docker for containers with the `optimclaw.job_id` label
 //! 2. Checks if each job is active in the ContextManager
 //! 3. Cleans up containers with inactive/missing jobs
 
@@ -38,7 +38,7 @@ impl Default for ReaperConfig {
         Self {
             scan_interval: Duration::from_secs(300),
             orphan_threshold: Duration::from_secs(600),
-            container_label: "ironclaw.job_id".to_string(),
+            container_label: "optimclaw.job_id".to_string(),
         }
     }
 }
@@ -88,7 +88,7 @@ impl SandboxReaper {
     }
 
     async fn scan_and_reap(&self) {
-        let containers = match self.list_ironclaw_containers().await {
+        let containers = match self.list_optimclaw_containers().await {
             Ok(c) => c,
             Err(e) => {
                 tracing::error!(error = %e, "Reaper: failed to list Docker containers");
@@ -145,10 +145,10 @@ impl SandboxReaper {
         }
     }
 
-    /// List all IronClaw-managed containers from Docker.
+    /// List all OptimClaw-managed containers from Docker.
     ///
     /// Returns tuples of (container_id, job_id, created_at).
-    async fn list_ironclaw_containers(
+    async fn list_optimclaw_containers(
         &self,
     ) -> Result<Vec<(String, Uuid, DateTime<Utc>)>, bollard::errors::Error> {
         use bollard::container::ListContainersOptions;
@@ -183,7 +183,7 @@ impl SandboxReaper {
                     tracing::warn!(
                         container_id = %&container_id[..12.min(container_id.len())],
                         label_key = %&self.config.container_label,
-                        "Reaper: ironclaw container missing valid job_id label"
+                        "Reaper: optimclaw container missing valid job_id label"
                     );
                     continue;
                 }
@@ -191,7 +191,7 @@ impl SandboxReaper {
 
             // Parse created_at from label (set by us at creation time); fall back to Docker timestamp
             let created_at = match labels
-                .get("ironclaw.created_at")
+                .get("optimclaw.created_at")
                 .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
                 .map(|dt| dt.with_timezone(&Utc))
                 .or_else(|| {
@@ -418,20 +418,20 @@ mod tests {
     fn parse_container_labels_extracts_job_id_and_timestamp() {
         let mut labels = HashMap::new();
         let job_id = Uuid::new_v4();
-        labels.insert("ironclaw.job_id".to_string(), job_id.to_string());
+        labels.insert("optimclaw.job_id".to_string(), job_id.to_string());
         labels.insert(
-            "ironclaw.created_at".to_string(),
+            "optimclaw.created_at".to_string(),
             "2024-01-15T10:30:45+00:00".to_string(),
         );
 
         // Verify parsing works
         let parsed_id: Option<Uuid> = labels
-            .get("ironclaw.job_id")
+            .get("optimclaw.job_id")
             .and_then(|s| s.parse::<Uuid>().ok());
         assert_eq!(parsed_id, Some(job_id));
 
         let parsed_time = labels
-            .get("ironclaw.created_at")
+            .get("optimclaw.created_at")
             .and_then(|s| DateTime::parse_from_rfc3339(s).ok());
         assert!(parsed_time.is_some());
     }
@@ -441,7 +441,7 @@ mod tests {
     fn missing_job_id_label_is_skipped() {
         let labels: HashMap<String, String> = HashMap::new();
         let job_id: Option<Uuid> = labels
-            .get("ironclaw.job_id")
+            .get("optimclaw.job_id")
             .and_then(|s| s.parse::<Uuid>().ok());
         assert_eq!(job_id, None);
     }
@@ -451,12 +451,12 @@ mod tests {
     fn malformed_timestamp_fallback_works() {
         let mut labels: HashMap<String, String> = HashMap::new();
         labels.insert(
-            "ironclaw.created_at".to_string(),
+            "optimclaw.created_at".to_string(),
             "invalid-date".to_string(),
         );
 
         let parsed_time = labels
-            .get("ironclaw.created_at")
+            .get("optimclaw.created_at")
             .and_then(|s| DateTime::parse_from_rfc3339(s).ok());
         assert!(
             parsed_time.is_none(),
@@ -556,7 +556,7 @@ mod tests {
             Duration::from_secs(600),
             "Orphan threshold should be 10 min"
         );
-        assert_eq!(cfg.container_label, "ironclaw.job_id");
+        assert_eq!(cfg.container_label, "optimclaw.job_id");
     }
 
     // Test: reaper config is customizable
@@ -663,24 +663,24 @@ mod tests {
     // ================================================================
     //
     // These tests verify the reaper works with actual Docker containers.
-    // They require Docker to be running and the IRONCLAW_E2E_DOCKER_TESTS
+    // They require Docker to be running and the OPTIMCLAW_E2E_DOCKER_TESTS
     // environment variable to be set (to avoid running them in CI by default).
     //
-    // Run with: IRONCLAW_E2E_DOCKER_TESTS=1 cargo test orchestrator::reaper::e2e_tests --lib -- --nocapture
+    // Run with: OPTIMCLAW_E2E_DOCKER_TESTS=1 cargo test orchestrator::reaper::e2e_tests --lib -- --nocapture
 
     #[cfg(all(test, not(target_env = "msvc")))]
     mod e2e_tests {
         use super::*;
 
         fn should_run_e2e() -> bool {
-            std::env::var("IRONCLAW_E2E_DOCKER_TESTS").is_ok()
+            std::env::var("OPTIMCLAW_E2E_DOCKER_TESTS").is_ok()
         }
 
-        /// Test that reaper can list containers with IronClaw labels
+        /// Test that reaper can list containers with OptimClaw labels
         #[tokio::test]
-        async fn e2e_reaper_lists_ironclaw_containers() {
+        async fn e2e_reaper_lists_optimclaw_containers() {
             if !should_run_e2e() {
-                eprintln!("Skipping e2e test (set IRONCLAW_E2E_DOCKER_TESTS=1 to run)");
+                eprintln!("Skipping e2e test (set OPTIMCLAW_E2E_DOCKER_TESTS=1 to run)");
                 return;
             }
 
@@ -693,17 +693,17 @@ mod tests {
                 }
             };
 
-            // Create a test container with IronClaw labels
+            // Create a test container with OptimClaw labels
             let job_id = Uuid::new_v4();
-            let test_name = format!("ironclaw-reaper-test-{}", &job_id.to_string()[..8]);
+            let test_name = format!("optimclaw-reaper-test-{}", &job_id.to_string()[..8]);
 
             let job_id_str = job_id.to_string();
             let created_at_str = (Utc::now() - chrono::Duration::hours(1)).to_rfc3339();
 
             let mut labels_str: std::collections::HashMap<&str, &str> =
                 std::collections::HashMap::new();
-            labels_str.insert("ironclaw.job_id", &job_id_str);
-            labels_str.insert("ironclaw.created_at", &created_at_str);
+            labels_str.insert("optimclaw.job_id", &job_id_str);
+            labels_str.insert("optimclaw.created_at", &created_at_str);
 
             let config = bollard::container::CreateContainerOptions {
                 name: test_name.as_str(),
@@ -746,11 +746,11 @@ mod tests {
 
             let labels = inspect.config.and_then(|c| c.labels).unwrap_or_default();
             assert!(
-                labels.contains_key("ironclaw.job_id"),
-                "Container should have ironclaw.job_id label"
+                labels.contains_key("optimclaw.job_id"),
+                "Container should have optimclaw.job_id label"
             );
             assert_eq!(
-                labels.get("ironclaw.job_id").map(|s| s.as_str()),
+                labels.get("optimclaw.job_id").map(|s| s.as_str()),
                 Some(job_id.to_string().as_str()),
                 "job_id label should match"
             );
@@ -766,7 +766,7 @@ mod tests {
         #[tokio::test]
         async fn e2e_reaper_removes_orphaned_containers() {
             if !should_run_e2e() {
-                eprintln!("Skipping e2e test (set IRONCLAW_E2E_DOCKER_TESTS=1 to run)");
+                eprintln!("Skipping e2e test (set OPTIMCLAW_E2E_DOCKER_TESTS=1 to run)");
                 return;
             }
 
@@ -781,14 +781,14 @@ mod tests {
 
             // Create a fake job ID that won't exist in context manager
             let orphaned_job_id = Uuid::new_v4();
-            let test_name = format!("ironclaw-orphan-test-{}", &orphaned_job_id.to_string()[..8]);
+            let test_name = format!("optimclaw-orphan-test-{}", &orphaned_job_id.to_string()[..8]);
 
             let job_id_str = orphaned_job_id.to_string();
             let created_at_str = (Utc::now() - chrono::Duration::hours(2)).to_rfc3339();
             let mut labels: std::collections::HashMap<&str, &str> =
                 std::collections::HashMap::new();
-            labels.insert("ironclaw.job_id", &job_id_str);
-            labels.insert("ironclaw.created_at", &created_at_str);
+            labels.insert("optimclaw.job_id", &job_id_str);
+            labels.insert("optimclaw.created_at", &created_at_str);
 
             let config = bollard::container::CreateContainerOptions {
                 name: test_name.as_str(),
@@ -863,7 +863,7 @@ mod tests {
         #[tokio::test]
         async fn e2e_reaper_respects_age_threshold() {
             if !should_run_e2e() {
-                eprintln!("Skipping e2e test (set IRONCLAW_E2E_DOCKER_TESTS=1 to run)");
+                eprintln!("Skipping e2e test (set OPTIMCLAW_E2E_DOCKER_TESTS=1 to run)");
                 return;
             }
 
@@ -884,21 +884,21 @@ mod tests {
             let old_time_str = (Utc::now() - chrono::Duration::hours(2)).to_rfc3339();
             let mut old_labels: std::collections::HashMap<&str, &str> =
                 std::collections::HashMap::new();
-            old_labels.insert("ironclaw.job_id", &old_id_str);
-            old_labels.insert("ironclaw.created_at", &old_time_str);
+            old_labels.insert("optimclaw.job_id", &old_id_str);
+            old_labels.insert("optimclaw.created_at", &old_time_str);
 
             // New container (created 1 minute ago, within threshold)
             let new_id_str = new_job_id.to_string();
             let new_time_str = (Utc::now() - chrono::Duration::minutes(1)).to_rfc3339();
             let mut new_labels: std::collections::HashMap<&str, &str> =
                 std::collections::HashMap::new();
-            new_labels.insert("ironclaw.job_id", &new_id_str);
-            new_labels.insert("ironclaw.created_at", &new_time_str);
+            new_labels.insert("optimclaw.job_id", &new_id_str);
+            new_labels.insert("optimclaw.created_at", &new_time_str);
 
             let mut containers_to_cleanup = Vec::new();
 
             // Create old container
-            let old_name = format!("ironclaw-age-old-{}", &old_job_id.to_string()[..8]);
+            let old_name = format!("optimclaw-age-old-{}", &old_job_id.to_string()[..8]);
             if let Ok(r) = docker
                 .create_container(
                     Some(bollard::container::CreateContainerOptions {
@@ -918,7 +918,7 @@ mod tests {
             }
 
             // Create new container
-            let new_name = format!("ironclaw-age-new-{}", &new_job_id.to_string()[..8]);
+            let new_name = format!("optimclaw-age-new-{}", &new_job_id.to_string()[..8]);
             if let Ok(r) = docker
                 .create_container(
                     Some(bollard::container::CreateContainerOptions {

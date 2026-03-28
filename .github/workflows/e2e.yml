@@ -14,7 +14,7 @@ on:
 jobs:
   # ── Step 1: compile once ──────────────────────────────────────────────────
   build:
-    name: Build ironclaw (libsql)
+    name: Build optimclaw (libsql)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,8 +35,8 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: ironclaw-e2e-binary
-          path: target/debug/ironclaw
+          name: optimclaw-e2e-binary
+          path: target/debug/optimclaw
           retention-days: 1
 
   # ── Step 2: run test slices in parallel ───────────────────────────────────
@@ -63,11 +63,11 @@ jobs:
       - name: Download binary
         uses: actions/download-artifact@v4
         with:
-          name: ironclaw-e2e-binary
+          name: optimclaw-e2e-binary
           path: target/debug/
 
       - name: Make binary executable
-        run: chmod +x target/debug/ironclaw
+        run: chmod +x target/debug/optimclaw
 
       - uses: actions/setup-python@v5
         with:

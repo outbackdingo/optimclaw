@@ -1,6 +1,6 @@
-# IronClaw Coverage Plan: 63.3% to 95%
+# OptimClaw Coverage Plan: 63.3% to 95%
 
-> Generated 2025-03-06 from [Codecov](https://app.codecov.io/gh/nearai/ironclaw/tree/main/src)
+> Generated 2025-03-06 from [Codecov](https://app.codecov.io/gh/nearai/optimclaw/tree/main/src)
 
 ## Current State
 

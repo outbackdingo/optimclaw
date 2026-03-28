@@ -16,8 +16,8 @@ mod tests {
     use async_trait::async_trait;
     use serde_json::json;
 
-    use ironclaw::context::JobContext;
-    use ironclaw::tools::{Tool, ToolError, ToolOutput};
+    use optimclaw::context::JobContext;
+    use optimclaw::tools::{Tool, ToolError, ToolOutput};
 
     use crate::support::test_rig::TestRigBuilder;
     use crate::support::trace_llm::{
@@ -531,7 +531,7 @@ mod tests {
         let trace = LlmTrace {
             model_name: "test-coercion-oneof".to_string(),
             turns: vec![crate::support::trace_llm::TraceTurn {
-                user_input: "List issues in nearai/ironclaw with limit 100".to_string(),
+                user_input: "List issues in nearai/optimclaw with limit 100".to_string(),
                 steps: vec![
                     TraceStep {
                         request_hint: None,
@@ -543,7 +543,7 @@ mod tests {
                                 arguments: json!({
                                     "action": "list_issues",
                                     "owner": "nearai",
-                                    "repo": "ironclaw",
+                                    "repo": "optimclaw",
                                     "state": "open",
                                     "limit": "100"
                                 }),
@@ -556,7 +556,7 @@ mod tests {
                     TraceStep {
                         request_hint: None,
                         response: TraceResponse::Text {
-                            content: "Found issues in nearai/ironclaw with limit 100.".to_string(),
+                            content: "Found issues in nearai/optimclaw with limit 100.".to_string(),
                             input_tokens: 150,
                             output_tokens: 20,
                         },
@@ -583,7 +583,7 @@ mod tests {
             .build()
             .await;
 
-        rig.send_message("List issues in nearai/ironclaw with limit 100")
+        rig.send_message("List issues in nearai/optimclaw with limit 100")
             .await;
         let responses = rig.wait_for_responses(1, Duration::from_secs(15)).await;
 
@@ -608,7 +608,7 @@ mod tests {
         let trace = LlmTrace {
             model_name: "test-coercion-oneof-issue".to_string(),
             turns: vec![crate::support::trace_llm::TraceTurn {
-                user_input: "Get issue 42 from nearai/ironclaw".to_string(),
+                user_input: "Get issue 42 from nearai/optimclaw".to_string(),
                 steps: vec![
                     TraceStep {
                         request_hint: None,
@@ -619,7 +619,7 @@ mod tests {
                                 arguments: json!({
                                     "action": "get_issue",
                                     "owner": "nearai",
-                                    "repo": "ironclaw",
+                                    "repo": "optimclaw",
                                     "issue_number": "42"
                                 }),
                             }],
@@ -658,7 +658,7 @@ mod tests {
             .build()
             .await;
 
-        rig.send_message("Get issue 42 from nearai/ironclaw").await;
+        rig.send_message("Get issue 42 from nearai/optimclaw").await;
         let responses = rig.wait_for_responses(1, Duration::from_secs(15)).await;
 
         rig.verify_trace_expects(&trace, &responses);
@@ -693,7 +693,7 @@ mod tests {
                                 arguments: json!({
                                     "action": "create_pull_request",
                                     "owner": "nearai",
-                                    "repo": "ironclaw",
+                                    "repo": "optimclaw",
                                     "title": "Fix coercion",
                                     "head": "fix/coercion",
                                     "base": "main",

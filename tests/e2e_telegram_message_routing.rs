@@ -10,16 +10,16 @@ mod tests {
 
     use async_trait::async_trait;
     use futures::StreamExt;
-    use ironclaw::agent::{Agent, AgentDeps};
-    use ironclaw::app::{AppBuilder, AppBuilderFlags};
-    use ironclaw::channels::web::log_layer::LogBroadcaster;
-    use ironclaw::channels::{
+    use optimclaw::agent::{Agent, AgentDeps};
+    use optimclaw::app::{AppBuilder, AppBuilderFlags};
+    use optimclaw::channels::web::log_layer::LogBroadcaster;
+    use optimclaw::channels::{
         Channel, ChannelManager, IncomingMessage, MessageStream, OutgoingResponse, StatusUpdate,
     };
-    use ironclaw::config::Config;
-    use ironclaw::db::{Database, libsql::LibSqlBackend};
-    use ironclaw::error::ChannelError;
-    use ironclaw::llm::{LlmProvider, SessionConfig, SessionManager};
+    use optimclaw::config::Config;
+    use optimclaw::db::{Database, libsql::LibSqlBackend};
+    use optimclaw::error::ChannelError;
+    use optimclaw::llm::{LlmProvider, SessionConfig, SessionManager};
     use tokio::sync::{Mutex, mpsc};
     use tokio_stream::wrappers::ReceiverStream;
 
@@ -198,10 +198,10 @@ mod tests {
             http_interceptor: None,
             transcription: None,
             document_extraction: None,
-            sandbox_readiness: ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            sandbox_readiness: optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
             builder: None,
             llm_backend: "nearai".to_string(),
-            tenant_rates: std::sync::Arc::new(ironclaw::tenant::TenantRateRegistry::new(4, 3)),
+            tenant_rates: std::sync::Arc::new(optimclaw::tenant::TenantRateRegistry::new(4, 3)),
         };
 
         let gateway = Arc::new(TestChannel::new());

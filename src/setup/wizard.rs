@@ -18,7 +18,7 @@ use std::sync::Arc;
 use deadpool_postgres::Config as PoolConfig;
 use secrecy::{ExposeSecret, SecretString};
 
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::channels::wasm::{
     ChannelCapabilitiesFile, available_channel_names, install_bundled_channel,
 };
@@ -88,7 +88,7 @@ pub struct SetupConfig {
     pub steps: Vec<String>,
 }
 
-/// Interactive setup wizard for IronClaw.
+/// Interactive setup wizard for OptimClaw.
 pub struct SetupWizard {
     config: SetupConfig,
     settings: Settings,
@@ -188,7 +188,7 @@ impl SetupWizard {
     /// connection, so users don't have to re-enter everything.
     pub async fn run(&mut self) -> Result<(), SetupError> {
         print_banner();
-        print_header("IronClaw Setup Wizard");
+        print_header("OptimClaw Setup Wizard");
 
         if !self.config.steps.is_empty() {
             // Selective step mode: reconnect to existing DB and load settings,
@@ -485,7 +485,7 @@ impl SetupWizard {
 
         #[allow(unreachable_code)]
         Err(SetupError::Database(
-            "No database configured. Run full setup first (ironclaw onboard).".to_string(),
+            "No database configured. Run full setup first (optimclaw onboard).".to_string(),
         ))
     }
 
@@ -494,7 +494,7 @@ impl SetupWizard {
     async fn reconnect_postgres(&mut self) -> Result<(), SetupError> {
         let url = std::env::var("DATABASE_URL").map_err(|_| {
             SetupError::Database(
-                "DATABASE_URL not set. Run full setup first (ironclaw onboard).".to_string(),
+                "DATABASE_URL not set. Run full setup first (optimclaw onboard).".to_string(),
             )
         })?;
 
@@ -726,7 +726,7 @@ impl SetupWizard {
         }
 
         println!();
-        print_info("IronClaw uses an embedded SQLite database (libSQL).");
+        print_info("OptimClaw uses an embedded SQLite database (libSQL).");
         print_info("No external database server required.");
         println!();
 
@@ -825,7 +825,7 @@ impl SetupWizard {
 
         if major_version < MIN_PG_MAJOR_VERSION {
             return Err(SetupError::Database(format!(
-                "PostgreSQL {} detected. IronClaw requires PostgreSQL {} or later for pgvector support.\n\
+                "PostgreSQL {} detected. OptimClaw requires PostgreSQL {} or later for pgvector support.\n\
                  Upgrade: https://www.postgresql.org/download/",
                 version_str, MIN_PG_MAJOR_VERSION
             )));
@@ -850,7 +850,7 @@ impl SetupWizard {
                  Ubuntu:  apt install postgresql-{0}-pgvector\n  \
                  Docker:  use the pgvector/pgvector:pg{0} image\n  \
                  Source:  https://github.com/pgvector/pgvector#installation\n\n\
-                 Then restart PostgreSQL and re-run: ironclaw onboard",
+                 Then restart PostgreSQL and re-run: optimclaw onboard",
                 major_version
             )));
         }
@@ -1028,11 +1028,11 @@ impl SetupWizard {
                 // Make visible to optional_env() for any subsequent config resolution.
                 crate::config::inject_single_var("SECRETS_MASTER_KEY", &key_hex);
 
-                // Store hex for write_bootstrap_env to persist to ~/.ironclaw/.env.
+                // Store hex for write_bootstrap_env to persist to ~/.optimclaw/.env.
                 self.settings.secrets_master_key_hex = Some(key_hex.clone());
 
                 println!();
-                print_info("Master key generated and will be saved to ~/.ironclaw/.env");
+                print_info("Master key generated and will be saved to ~/.optimclaw/.env");
                 println!();
                 println!("  SECRETS_MASTER_KEY={}", key_hex);
                 println!();
@@ -1180,7 +1180,7 @@ impl SetupWizard {
         crate::config::inject_single_var("SECRETS_MASTER_KEY", &key_hex);
         self.settings.secrets_master_key_hex = Some(key_hex);
         self.settings.secrets_master_key_source = KeySource::Env;
-        print_success("Master key stored in ~/.ironclaw/.env");
+        print_success("Master key stored in ~/.optimclaw/.env");
         Ok(())
     }
 
@@ -1630,7 +1630,7 @@ impl SetupWizard {
             .await
             .map_err(|e| SetupError::Auth(e.to_string()))?;
 
-        print_info("Authorize IronClaw with GitHub Copilot in your browser.");
+        print_info("Authorize OptimClaw with GitHub Copilot in your browser.");
         print_info(&format!("Verification URL: {}", device.verification_uri));
         print_info(&format!("One-time code: {}", device.user_code));
 
@@ -2516,7 +2516,7 @@ impl SetupWizard {
         println!();
 
         // Discover available WASM channels
-        let channels_dir = ironclaw_base_dir().join("channels");
+        let channels_dir = optimclaw_base_dir().join("channels");
 
         let mut discovered_channels = discover_wasm_channels(&channels_dir).await;
         let installed_names: HashSet<String> = discovered_channels
@@ -2715,7 +2715,7 @@ impl SetupWizard {
             Some(c) => c,
             None => {
                 print_info("Extension registry not found. Skipping tool installation.");
-                print_info("Install tools manually with: ironclaw tool install <path>");
+                print_info("Install tools manually with: optimclaw tool install <path>");
                 return Ok(());
             }
         };
@@ -2733,11 +2733,11 @@ impl SetupWizard {
 
         print_info("Available tools from the extension registry:");
         print_info("Select which tools to install. You can install more later with:");
-        print_info("  ironclaw registry install <name>");
+        print_info("  optimclaw registry install <name>");
         println!();
 
         // Check which tools are already installed
-        let tools_dir = ironclaw_base_dir().join("tools");
+        let tools_dir = optimclaw_base_dir().join("tools");
 
         let installed_tools = discover_installed_tools(&tools_dir).await;
 
@@ -2777,7 +2777,7 @@ impl SetupWizard {
         let installer = crate::registry::installer::RegistryInstaller::new(
             repo_root.to_path_buf(),
             tools_dir.clone(),
-            ironclaw_base_dir().join("channels"),
+            optimclaw_base_dir().join("channels"),
         );
 
         let mut installed_count = 0;
@@ -2804,7 +2804,7 @@ impl SetupWizard {
                     {
                         let provider = auth.provider.as_deref().unwrap_or(&tool.name);
                         // Only mention unique providers (Google tools share auth)
-                        let hint = format!("  {} - ironclaw tool auth {}", provider, tool.name);
+                        let hint = format!("  {} - optimclaw tool auth {}", provider, tool.name);
                         if !auth_needed
                             .iter()
                             .any(|h| h.starts_with(&format!("  {} -", provider)))
@@ -2837,7 +2837,7 @@ impl SetupWizard {
 
     /// Step 8: Docker Sandbox -- check Docker installation and availability.
     async fn step_docker_sandbox(&mut self) -> Result<(), SetupError> {
-        print_info("IronClaw can execute code, run builds, and use tools inside Docker");
+        print_info("OptimClaw can execute code, run builds, and use tools inside Docker");
         print_info("containers. This keeps your system safe -- commands from the LLM run");
         print_info("in an isolated sandbox with no access to your credentials, limited");
         print_info("filesystem access, and network traffic restricted to an allowlist.");
@@ -3060,7 +3060,7 @@ impl SetupWizard {
         Ok(saved)
     }
 
-    /// Write bootstrap environment variables to `~/.ironclaw/.env`.
+    /// Write bootstrap environment variables to `~/.optimclaw/.env`.
     ///
     /// Only true chicken-and-egg settings are written here — things needed
     /// before the database is connected: `DATABASE_BACKEND`, `DATABASE_URL`,
@@ -3286,7 +3286,7 @@ impl SetupWizard {
         let _ = loaded;
     }
 
-    /// Save settings to the database and `~/.ironclaw/.env`, then print
+    /// Save settings to the database and `~/.optimclaw/.env`, then print
     /// a warm completion card with the 3 key facts.
     async fn save_and_summarize(&mut self) -> Result<(), SetupError> {
         use crate::cli::fmt;
@@ -3313,9 +3313,9 @@ impl SetupWizard {
         println!("  {}", sep);
         println!();
 
-        // Title line: checkmark + "ironclaw is ready"
+        // Title line: checkmark + "optimclaw is ready"
         println!(
-            "  {}\u{2713}{} {}ironclaw is ready{}",
+            "  {}\u{2713}{} {}optimclaw is ready{}",
             fmt::success(),
             fmt::reset(),
             fmt::bold_accent(),
@@ -3395,14 +3395,14 @@ impl SetupWizard {
 
         // Action hints
         println!(
-            "  {}Start chatting:{}   {}ironclaw{}",
+            "  {}Start chatting:{}   {}optimclaw{}",
             fmt::dim(),
             fmt::reset(),
             fmt::bold_accent(),
             fmt::reset(),
         );
         println!(
-            "  {}Full setup:{}       {}ironclaw onboard{}",
+            "  {}Full setup:{}       {}optimclaw onboard{}",
             fmt::dim(),
             fmt::reset(),
             fmt::bold_accent(),
@@ -3412,7 +3412,7 @@ impl SetupWizard {
 
         if self.config.quick {
             print_info(
-                "Tip: Run `ironclaw onboard` to configure channels, extensions, embeddings, and more.",
+                "Tip: Run `optimclaw onboard` to configure channels, extensions, embeddings, and more.",
             );
             println!();
         }
@@ -3641,7 +3641,7 @@ async fn install_selected_registry_channels(
 
         let installer = crate::registry::installer::RegistryInstaller::new(
             repo_root.clone(),
-            ironclaw_base_dir().join("tools"),
+            optimclaw_base_dir().join("tools"),
             channels_dir.to_path_buf(),
         );
 
@@ -3761,7 +3761,7 @@ mod tests {
     #[test]
     fn test_wizard_owner_id_uses_resolved_env_scope() {
         let _guard = lock_env();
-        let _owner = EnvGuard::set("IRONCLAW_OWNER_ID", " wizard-owner ");
+        let _owner = EnvGuard::set("OPTIMCLAW_OWNER_ID", " wizard-owner ");
 
         let wizard = SetupWizard::new();
         assert_eq!(wizard.owner_id(), "wizard-owner"); // safety: test-only assertion
@@ -3770,7 +3770,7 @@ mod tests {
     #[test]
     fn test_wizard_owner_id_uses_toml_scope() {
         let _guard = lock_env();
-        let _owner = EnvGuard::clear("IRONCLAW_OWNER_ID");
+        let _owner = EnvGuard::clear("OPTIMCLAW_OWNER_ID");
         let dir = tempdir().unwrap(); // safety: test-only tempdir setup
         let path = dir.path().join("config.toml");
         std::fs::write(&path, "owner_id = \"toml-owner\"\n").unwrap(); // safety: test-only fixture write
@@ -3786,18 +3786,18 @@ mod tests {
         use std::os::unix::ffi::OsStringExt;
 
         let _guard = lock_env();
-        let original = std::env::var_os("IRONCLAW_OWNER_ID");
+        let original = std::env::var_os("OPTIMCLAW_OWNER_ID");
         unsafe {
-            std::env::set_var("IRONCLAW_OWNER_ID", OsString::from_vec(vec![0x66, 0x80]));
+            std::env::set_var("OPTIMCLAW_OWNER_ID", OsString::from_vec(vec![0x66, 0x80]));
         }
 
         let result = SetupWizard::try_with_config_and_toml(Default::default(), None);
 
         unsafe {
             if let Some(value) = original {
-                std::env::set_var("IRONCLAW_OWNER_ID", value);
+                std::env::set_var("OPTIMCLAW_OWNER_ID", value);
             } else {
-                std::env::remove_var("IRONCLAW_OWNER_ID");
+                std::env::remove_var("OPTIMCLAW_OWNER_ID");
             }
         }
 
@@ -3994,7 +3994,7 @@ mod tests {
     #[tokio::test]
     async fn test_discover_wasm_channels_nonexistent_dir() {
         let channels = discover_wasm_channels(
-            &std::env::temp_dir().join("ironclaw_nonexistent_dir_abcxyz123"),
+            &std::env::temp_dir().join("optimclaw_nonexistent_dir_abcxyz123"),
         )
         .await;
         assert!(channels.is_empty());

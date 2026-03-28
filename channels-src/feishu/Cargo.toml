@@ -2,7 +2,7 @@
 name = "feishu-channel"
 version = "0.1.0"
 edition = "2021"
-description = "Feishu/Lark Bot channel for IronClaw"
+description = "Feishu/Lark Bot channel for OptimClaw"
 license = "MIT OR Apache-2.0"
 
 [lib]

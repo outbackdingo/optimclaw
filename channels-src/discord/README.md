@@ -1,4 +1,4 @@
-# Discord Channel for IronClaw
+# Discord Channel for OptimClaw
 
 WASM channel for Discord integration - handle slash commands and button interactions via webhooks.
 
@@ -13,12 +13,12 @@ WASM channel for Discord integration - handle slash commands and button interact
 
 1. Create a Discord Application at <https://discord.com/developers/applications>
 2. Create a Bot and get the token
-3. Set up Interactions URL to point to your IronClaw instance
+3. Set up Interactions URL to point to your OptimClaw instance
 4. Copy the Application ID and Public Key
-5. Store in IronClaw secrets:
+5. Store in OptimClaw secrets:
 
    ```bash
-   ironclaw secret set discord_bot_token YOUR_BOT_TOKEN
+   optimclaw secret set discord_bot_token YOUR_BOT_TOKEN
    ```
 
    **Note:** The `discord_bot_token` secret is used for Discord REST API calls.
@@ -51,7 +51,7 @@ curl -X POST \
 
 In your Discord app settings, set:
 
-- Interactions Endpoint URL: `https://your-ironclaw.com/webhook/discord`
+- Interactions Endpoint URL: `https://your-optimclaw.com/webhook/discord`
 
 ## Usage Examples
 
@@ -127,7 +127,7 @@ To send embeds, include an `embeds` array in the `metadata_json` field of the ag
 
 ### "401 Unauthorized"
 
-- Check that `discord_bot_token` is set correctly in IronClaw secrets.
+- Check that `discord_bot_token` is set correctly in OptimClaw secrets.
 - Ensure the bot is added to the server.
 
 ### "Interaction Failed"

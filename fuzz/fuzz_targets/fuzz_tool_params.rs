@@ -1,6 +1,6 @@
 #![no_main]
-use ironclaw::safety::Validator;
-use ironclaw::tools::validate_tool_schema;
+use optimclaw::safety::Validator;
+use optimclaw::tools::validate_tool_schema;
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {

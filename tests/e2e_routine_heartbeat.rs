@@ -17,25 +17,25 @@ mod tests {
     use secrecy::SecretString;
     use uuid::Uuid;
 
-    use ironclaw::agent::routine::{
+    use optimclaw::agent::routine::{
         NotifyConfig, Routine, RoutineAction, RoutineGuardrails, RoutineRun, RunStatus, Trigger,
     };
-    use ironclaw::agent::routine_engine::RoutineEngine;
-    use ironclaw::agent::{HeartbeatConfig, HeartbeatRunner, Scheduler, SchedulerDeps};
-    use ironclaw::channels::IncomingMessage;
-    use ironclaw::config::{AgentConfig, RoutineConfig, SafetyConfig};
-    use ironclaw::context::{ContextManager, JobContext};
-    use ironclaw::db::{Database, libsql::LibSqlBackend};
-    use ironclaw::extensions::ExtensionManager;
-    use ironclaw::hooks::HookRegistry;
-    use ironclaw::llm::LlmProvider;
-    use ironclaw::safety::SafetyLayer;
-    use ironclaw::secrets::{InMemorySecretsStore, SecretsCrypto, SecretsStore};
-    use ironclaw::tools::builtin::routine::RoutineUpdateTool;
-    use ironclaw::tools::mcp::{McpProcessManager, McpSessionManager};
-    use ironclaw::tools::{ApprovalRequirement, Tool, ToolError, ToolOutput, ToolRegistry};
-    use ironclaw::workspace::Workspace;
-    use ironclaw::workspace::hygiene::HygieneConfig;
+    use optimclaw::agent::routine_engine::RoutineEngine;
+    use optimclaw::agent::{HeartbeatConfig, HeartbeatRunner, Scheduler, SchedulerDeps};
+    use optimclaw::channels::IncomingMessage;
+    use optimclaw::config::{AgentConfig, RoutineConfig, SafetyConfig};
+    use optimclaw::context::{ContextManager, JobContext};
+    use optimclaw::db::{Database, libsql::LibSqlBackend};
+    use optimclaw::extensions::ExtensionManager;
+    use optimclaw::hooks::HookRegistry;
+    use optimclaw::llm::LlmProvider;
+    use optimclaw::safety::SafetyLayer;
+    use optimclaw::secrets::{InMemorySecretsStore, SecretsCrypto, SecretsStore};
+    use optimclaw::tools::builtin::routine::RoutineUpdateTool;
+    use optimclaw::tools::mcp::{McpProcessManager, McpSessionManager};
+    use optimclaw::tools::{ApprovalRequirement, Tool, ToolError, ToolOutput, ToolRegistry};
+    use optimclaw::workspace::Workspace;
+    use optimclaw::workspace::hygiene::HygieneConfig;
 
     use crate::support::trace_llm::{LlmTrace, TraceLlm, TraceResponse, TraceStep, TraceToolCall};
 
@@ -335,14 +335,14 @@ mod tests {
             SchedulerDeps {
                 tools: registry.clone(),
                 extension_manager: extension_manager.clone(),
-                store: Some(ironclaw::tenant::AdminScope::new(db.clone())),
+                store: Some(optimclaw::tenant::AdminScope::new(db.clone())),
                 hooks: Arc::new(HookRegistry::new()),
             },
         ));
 
         Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db),
+            optimclaw::tenant::AdminScope::new(db),
             llm,
             ws,
             notify_tx,
@@ -350,7 +350,7 @@ mod tests {
             extension_manager,
             registry,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ))
     }
 
@@ -446,7 +446,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -454,7 +454,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         // Insert a cron routine with next_fire_at in the past.
@@ -525,7 +525,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -533,7 +533,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         // Insert an event routine matching "deploy.*production".
@@ -612,7 +612,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -620,7 +620,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         let routine = make_routine(
@@ -721,7 +721,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -729,11 +729,11 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         let mut filters = std::collections::HashMap::new();
-        filters.insert("repository".to_string(), "nearai/ironclaw".to_string());
+        filters.insert("repository".to_string(), "nearai/optimclaw".to_string());
 
         let routine = make_routine(
             "github-issue-opened",
@@ -753,7 +753,7 @@ mod tests {
                 "github",
                 "issue.opened",
                 &serde_json::json!({
-                    "repository": "nearai/ironclaw",
+                    "repository": "nearai/optimclaw",
                     "issue_number": 42
                 }),
                 Some("default"),
@@ -777,7 +777,7 @@ mod tests {
             .emit_system_event(
                 "github",
                 "issue.closed",
-                &serde_json::json!({"repository": "nearai/ironclaw"}),
+                &serde_json::json!({"repository": "nearai/optimclaw"}),
                 Some("default"),
             )
             .await;
@@ -806,7 +806,7 @@ mod tests {
                 "GitHub",
                 "Issue.Opened",
                 &serde_json::json!({
-                    "repository": "nearai/ironclaw",
+                    "repository": "nearai/optimclaw",
                     "issue_number": 99
                 }),
                 Some("default"),
@@ -822,7 +822,7 @@ mod tests {
             .emit_system_event(
                 "github",
                 "issue.opened",
-                &serde_json::json!({"repository": "NearAI/IronClaw"}),
+                &serde_json::json!({"repository": "NearAI/OptimClaw"}),
                 Some("default"),
             )
             .await;
@@ -864,7 +864,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -872,7 +872,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         // Insert an event routine with 1-hour cooldown.
@@ -964,7 +964,7 @@ mod tests {
 
         let result = runner.check_heartbeat().await;
         match result {
-            ironclaw::agent::HeartbeatResult::NeedsAttention(msg) => {
+            optimclaw::agent::HeartbeatResult::NeedsAttention(msg) => {
                 assert!(
                     msg.contains("error"),
                     "Expected 'error' in attention message: {msg}"
@@ -1010,7 +1010,7 @@ mod tests {
 
         let result = runner.check_heartbeat().await;
         assert!(
-            matches!(result, ironclaw::agent::HeartbeatResult::Skipped),
+            matches!(result, optimclaw::agent::HeartbeatResult::Skipped),
             "Expected Skipped for empty checklist, got: {result:?}"
         );
     }
@@ -1047,7 +1047,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(Arc::clone(&db)),
+            optimclaw::tenant::AdminScope::new(Arc::clone(&db)),
             llm,
             ws,
             notify_tx,
@@ -1055,7 +1055,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         (engine, db, dir)
@@ -1137,10 +1137,10 @@ mod tests {
 
     #[tokio::test]
     async fn full_job_max_concurrent_blocks_second_fire_while_first_active() {
-        use ironclaw::agent::routine::{
+        use optimclaw::agent::routine::{
             NotifyConfig, Routine, RoutineAction, RoutineGuardrails, RoutineRun, RunStatus, Trigger,
         };
-        use ironclaw::error::RoutineError;
+        use optimclaw::error::RoutineError;
 
         let (db, _tmp) = create_test_db().await;
         let ws = create_workspace(&db);
@@ -1169,7 +1169,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             RoutineConfig::default(),
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -1177,7 +1177,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         // Create a full_job routine with max_concurrent = 1
@@ -1277,7 +1277,7 @@ mod tests {
 
         let engine = Arc::new(RoutineEngine::new(
             config,
-            ironclaw::tenant::AdminScope::new(db.clone()),
+            optimclaw::tenant::AdminScope::new(db.clone()),
             llm,
             ws,
             notify_tx,
@@ -1285,7 +1285,7 @@ mod tests {
             None,
             tools,
             safety,
-            ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
         ));
 
         // Insert a due cron routine

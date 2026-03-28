@@ -1,4 +1,4 @@
-//! GitHub WASM Tool for IronClaw.
+//! GitHub WASM Tool for OptimClaw.
 //!
 //! Provides GitHub integration for reading repos, managing issues,
 //! reviewing PRs, and triggering workflows.
@@ -6,7 +6,7 @@
 //! # Authentication
 //!
 //! Store your GitHub Personal Access Token:
-//! `ironclaw secret set github_token <token>`
+//! `optimclaw secret set github_token <token>`
 //!
 //! Token needs these permissions:
 //! - repo (for private repos)
@@ -424,7 +424,7 @@ fn get_github_token() -> Result<String, String> {
         return Ok("present".to_string());
     }
 
-    Err("GitHub token not found in secret store. Set it with: ironclaw secret set github_token <token>. \
+    Err("GitHub token not found in secret store. Set it with: optimclaw secret set github_token <token>. \
          Token needs 'repo', 'workflow', and 'read:org' scopes.".into())
 }
 
@@ -436,7 +436,7 @@ fn github_request(method: &str, path: &str, body: Option<String>) -> Result<Stri
     let headers = serde_json::json!({
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "IronClaw-GitHub-Tool"
+        "User-Agent": "OptimClaw-GitHub-Tool"
     });
 
     let body_bytes = body.map(|b| b.into_bytes());
@@ -1555,7 +1555,7 @@ mod tests {
         let payload = serde_json::json!({
             "action": "created",
             "repository": {
-                "full_name": "nearai/ironclaw",
+                "full_name": "nearai/optimclaw",
                 "owner": { "login": "nearai" }
             },
             "sender": { "login": "maintainer1" },
@@ -1570,7 +1570,7 @@ mod tests {
             github_enriched_payload("issue_comment", &headers, &payload, "issue.comment.created");
         assert_eq!(
             enriched.get("repository_name").and_then(|v| v.as_str()),
-            Some("nearai/ironclaw")
+            Some("nearai/optimclaw")
         );
         // Original repository object is preserved
         assert!(enriched
@@ -1594,10 +1594,10 @@ mod tests {
             "action": "created",
             "issue": {
                 "number": 42,
-                "pull_request": { "url": "https://api.github.com/repos/nearai/ironclaw/pulls/42" }
+                "pull_request": { "url": "https://api.github.com/repos/nearai/optimclaw/pulls/42" }
             },
             "comment": { "body": "LGTM", "user": { "login": "reviewer" } },
-            "repository": { "full_name": "nearai/ironclaw", "owner": { "login": "nearai" } },
+            "repository": { "full_name": "nearai/optimclaw", "owner": { "login": "nearai" } },
             "sender": { "login": "reviewer" }
         });
 
@@ -1632,7 +1632,7 @@ mod tests {
             body_json: Some(serde_json::json!({
                 "action":"opened",
                 "issue":{"number":42},
-                "repository":{"full_name":"nearai/ironclaw"},
+                "repository":{"full_name":"nearai/optimclaw"},
                 "sender":{"login":"maintainer1"}
             })),
         })

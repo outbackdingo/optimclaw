@@ -42,9 +42,9 @@ const MAX_REDIRECTS: usize = 3;
 
 /// Descriptive User-Agent so public APIs don't reject bare requests.
 const USER_AGENT: &str = concat!(
-    "IronClaw-Agent/",
+    "OptimClaw-Agent/",
     env!("CARGO_PKG_VERSION"),
-    " (https://github.com/nearai/ironclaw)"
+    " (https://github.com/nearai/optimclaw)"
 );
 
 /// Tool for making HTTP requests.
@@ -1466,16 +1466,16 @@ mod tests {
 
     #[test]
     fn test_save_to_accepts_simple_tmp_path() {
-        let path = validate_save_to_path("/tmp/test_ironclaw_photo.jpg").unwrap();
+        let path = validate_save_to_path("/tmp/test_optimclaw_photo.jpg").unwrap();
         assert!(path.starts_with("/tmp"));
         let _ = std::fs::remove_file(&path);
     }
 
     #[test]
     fn test_save_to_accepts_nested_tmp_path() {
-        let path = validate_save_to_path("/tmp/ironclaw_test_subdir/nested/file.png").unwrap();
+        let path = validate_save_to_path("/tmp/optimclaw_test_subdir/nested/file.png").unwrap();
         assert!(path.starts_with("/tmp"));
-        let _ = std::fs::remove_dir_all("/tmp/ironclaw_test_subdir");
+        let _ = std::fs::remove_dir_all("/tmp/optimclaw_test_subdir");
     }
 
     #[test]

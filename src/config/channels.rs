@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::config::helpers::{optional_env, parse_bool_env, parse_optional_env};
 use crate::error::ConfigError;
 use crate::settings::Settings;
@@ -14,7 +14,7 @@ pub struct ChannelsConfig {
     pub http: Option<HttpConfig>,
     pub gateway: Option<GatewayConfig>,
     pub signal: Option<SignalConfig>,
-    /// Directory containing WASM channel modules (default: ~/.ironclaw/channels/).
+    /// Directory containing WASM channel modules (default: ~/.optimclaw/channels/).
     pub wasm_channels_dir: std::path::PathBuf,
     /// Whether WASM channels are enabled.
     pub wasm_channels_enabled: bool,
@@ -309,9 +309,9 @@ impl ChannelsConfig {
 /// other modules that need to construct a gateway URL.
 pub const DEFAULT_GATEWAY_PORT: u16 = 3000;
 
-/// Get the default channels directory (~/.ironclaw/channels/).
+/// Get the default channels directory (~/.optimclaw/channels/).
 fn default_channels_dir() -> PathBuf {
-    ironclaw_base_dir().join("channels")
+    optimclaw_base_dir().join("channels")
 }
 
 #[cfg(test)]

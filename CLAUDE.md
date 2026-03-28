@@ -1,6 +1,6 @@
-# IronClaw Development Guide
+# OptimClaw Development Guide
 
-**IronClaw** is a secure personal AI assistant — user-first security, self-expanding tools, defense in depth, multi-channel access with proactive background execution.
+**OptimClaw** is a secure personal AI assistant — user-first security, self-expanding tools, defense in depth, multi-channel access with proactive background execution.
 
 ## Build & Test
 
@@ -9,7 +9,7 @@ cargo fmt                                                    # format
 cargo clippy --all --benches --tests --examples --all-features  # lint (zero warnings)
 cargo test                                                   # unit tests
 cargo test --features integration                            # + PostgreSQL tests
-RUST_LOG=ironclaw=debug cargo run                            # run with logging
+RUST_LOG=optimclaw=debug cargo run                            # run with logging
 ```
 
 E2E tests: see `tests/e2e/CLAUDE.md`.
@@ -35,20 +35,20 @@ All I/O is async with tokio. Use `Arc<T>` for shared state, `RwLock` for concurr
 
 ## Extracted Crates
 
-Safety logic lives in `crates/ironclaw_safety/`. The `src/safety/mod.rs` shim re-exports everything for backward compatibility, but **new code should import from `ironclaw_safety` directly** (e.g. `use ironclaw_safety::SafetyLayer`). When touching a file that still uses `crate::safety::*`, migrate its imports to `ironclaw_safety::*`.
+Safety logic lives in `crates/optimclaw_safety/`. The `src/safety/mod.rs` shim re-exports everything for backward compatibility, but **new code should import from `optimclaw_safety` directly** (e.g. `use optimclaw_safety::SafetyLayer`). When touching a file that still uses `crate::safety::*`, migrate its imports to `optimclaw_safety::*`.
 
 ## Project Structure
 
 ```
 crates/
-└── ironclaw_safety/    # Extracted: prompt injection, validation, leak detection, policy
+└── optimclaw_safety/    # Extracted: prompt injection, validation, leak detection, policy
 
 src/
 ├── lib.rs              # Library root, module declarations
 ├── main.rs             # Entry point, CLI args, startup
 ├── app.rs              # App startup orchestration (channel wiring, DB init)
-├── bootstrap.rs        # Base directory resolution (~/.ironclaw), early .env loading
-├── settings.rs         # User settings persistence (~/.ironclaw/settings.json)
+├── bootstrap.rs        # Base directory resolution (~/.optimclaw), early .env loading
+├── settings.rs         # User settings persistence (~/.optimclaw/settings.json)
 ├── service.rs          # OS service management (launchd/systemd daemon install)
 ├── tracing_fmt.rs      # Custom tracing formatter
 ├── util.rs             # Shared utilities
@@ -111,7 +111,7 @@ src/
 │   ├── claude_bridge.rs # Claude Code bridge (spawns claude CLI)
 │   └── proxy_llm.rs    # LlmProvider that proxies through orchestrator
 │
-├── safety/             # Re-export shim for crates/ironclaw_safety (see Extracted Crates)
+├── safety/             # Re-export shim for crates/optimclaw_safety (see Extracted Crates)
 │
 ├── llm/                # Multi-provider LLM integration — see src/llm/CLAUDE.md
 │
@@ -206,7 +206,7 @@ Pending -> InProgress -> Completed -> Submitted -> Accepted
 
 SKILL.md files extend the agent's prompt with domain-specific instructions. See `.claude/rules/skills.md` for full details.
 
-- **Trust model**: Trusted (user-placed in `~/.ironclaw/skills/` or workspace `skills/`, full tool access) vs Installed (registry, read-only tools)
+- **Trust model**: Trusted (user-placed in `~/.optimclaw/skills/` or workspace `skills/`, full tool access) vs Installed (registry, read-only tools)
 - **Selection pipeline**: gating (check bin/env/config requirements) -> scoring (keywords/patterns/tags) -> budget (fit within `SKILLS_MAX_TOKENS`) -> attenuation (trust-based tool ceiling)
 - **Skill tools**: `skill_list`, `skill_search`, `skill_install`, `skill_remove`
 
@@ -228,9 +228,9 @@ Persistent memory with hybrid search (FTS + vector via RRF). Four tools: `memory
 ## Debugging
 
 ```bash
-RUST_LOG=ironclaw=trace cargo run           # verbose
-RUST_LOG=ironclaw::agent=debug cargo run    # agent module only
-RUST_LOG=ironclaw=debug,tower_http=debug cargo run  # + HTTP request logging
+RUST_LOG=optimclaw=trace cargo run           # verbose
+RUST_LOG=optimclaw::agent=debug cargo run    # agent module only
+RUST_LOG=optimclaw=debug,tower_http=debug cargo run  # + HTTP request logging
 ```
 
 ## Current Limitations

@@ -11,9 +11,9 @@ mod e2e_import_tests {
     use tempfile::TempDir;
     use uuid::Uuid;
 
-    use ironclaw::import::openclaw::reader::OpenClawReader;
-    use ironclaw::import::openclaw::settings;
-    use ironclaw::import::{ImportOptions, ImportStats};
+    use optimclaw::import::openclaw::reader::OpenClawReader;
+    use optimclaw::import::openclaw::settings;
+    use optimclaw::import::{ImportOptions, ImportStats};
 
     /// Helper: Create a synthetic OpenClaw with full structure
     async fn setup_full_openclaw_test_env() -> Result<(TempDir, PathBuf), Box<dyn std::error::Error>>
@@ -205,7 +205,7 @@ mod e2e_import_tests {
     }
 
     #[tokio::test]
-    async fn test_settings_mapping_to_ironclaw_format() {
+    async fn test_settings_mapping_to_optimclaw_format() {
         let (_temp, openclaw_path) = setup_full_openclaw_test_env().await.expect("setup failed");
 
         let reader = OpenClawReader::new(&openclaw_path).expect("reader creation failed");

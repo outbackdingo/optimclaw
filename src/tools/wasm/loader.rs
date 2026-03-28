@@ -8,7 +8,7 @@
 //! # Example: Loading from Directory
 //!
 //! ```text
-//! ~/.ironclaw/tools/
+//! ~/.optimclaw/tools/
 //! ├── slack.wasm
 //! ├── slack.capabilities.json
 //! ├── github.wasm
@@ -17,7 +17,7 @@
 //!
 //! ```ignore
 //! let loader = WasmToolLoader::new(runtime, registry);
-//! loader.load_from_dir(Path::new("~/.ironclaw/tools/")).await?;
+//! loader.load_from_dir(Path::new("~/.optimclaw/tools/")).await?;
 //! ```
 //!
 //! # Dev Mode
@@ -519,10 +519,10 @@ pub fn wasm_artifact_path(crate_dir: &Path, binary_name: &str) -> PathBuf {
 /// Resolve the tools source directory.
 ///
 /// Checks (in order):
-/// 1. `IRONCLAW_TOOLS_SRC` env var
+/// 1. `OPTIMCLAW_TOOLS_SRC` env var
 /// 2. `<CARGO_MANIFEST_DIR>/tools-src/` (dev builds)
 fn tools_src_dir() -> PathBuf {
-    if let Ok(dir) = std::env::var("IRONCLAW_TOOLS_SRC") {
+    if let Ok(dir) = std::env::var("OPTIMCLAW_TOOLS_SRC") {
         return PathBuf::from(dir);
     }
     PathBuf::from(CARGO_MANIFEST_DIR).join("tools-src")
@@ -586,10 +586,10 @@ pub async fn discover_dev_tools() -> Result<HashMap<String, DiscoveredTool>, std
 /// Load WASM tools from build artifacts in `tools-src/`.
 ///
 /// In dev mode, tools can be loaded directly from their build output without
-/// needing to install them to `~/.ironclaw/tools/` first. Build artifacts
+/// needing to install them to `~/.optimclaw/tools/` first. Build artifacts
 /// that are newer than installed copies take priority.
 ///
-/// Set `IRONCLAW_TOOLS_SRC` env var to override the source directory.
+/// Set `OPTIMCLAW_TOOLS_SRC` env var to override the source directory.
 pub async fn load_dev_tools(
     loader: &WasmToolLoader,
     install_dir: &Path,
@@ -892,9 +892,9 @@ mod tests {
         };
 
         let _guard = lock_env();
-        let _proxy_guard = set_env_var("IRONCLAW_OAUTH_EXCHANGE_URL", None);
+        let _proxy_guard = set_env_var("OPTIMCLAW_OAUTH_EXCHANGE_URL", None);
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", None);
-        let _oauth_proxy_token_guard = set_env_var("IRONCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
+        let _oauth_proxy_token_guard = set_env_var("OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
 
         let caps = CapabilitiesFile {
             auth: Some(AuthCapabilitySchema {
@@ -985,9 +985,9 @@ mod tests {
         };
 
         let _guard = lock_env();
-        let _proxy_guard = set_env_var("IRONCLAW_OAUTH_EXCHANGE_URL", None);
+        let _proxy_guard = set_env_var("OPTIMCLAW_OAUTH_EXCHANGE_URL", None);
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", None);
-        let _oauth_proxy_token_guard = set_env_var("IRONCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
+        let _oauth_proxy_token_guard = set_env_var("OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
 
         // google_oauth_token should fall back to built-in credentials
         let caps = CapabilitiesFile {
@@ -1023,11 +1023,11 @@ mod tests {
 
         let _guard = lock_env();
         let _proxy_guard = set_env_var(
-            "IRONCLAW_OAUTH_EXCHANGE_URL",
+            "OPTIMCLAW_OAUTH_EXCHANGE_URL",
             Some("https://compose-api.example.com"),
         );
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", Some("gateway-test-token"));
-        let _oauth_proxy_token_guard = set_env_var("IRONCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
+        let _oauth_proxy_token_guard = set_env_var("OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
         let _client_id_guard =
             set_env_var("GOOGLE_OAUTH_CLIENT_ID", Some("hosted-google-client-id"));
 
@@ -1064,11 +1064,11 @@ mod tests {
 
         let _guard = lock_env();
         let _proxy_guard = set_env_var(
-            "IRONCLAW_OAUTH_EXCHANGE_URL",
+            "OPTIMCLAW_OAUTH_EXCHANGE_URL",
             Some("https://compose-api.example.com"),
         );
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", Some("gateway-test-token"));
-        let _oauth_proxy_token_guard = set_env_var("IRONCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
+        let _oauth_proxy_token_guard = set_env_var("OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN", None);
         let _client_id_guard =
             set_env_var("GOOGLE_OAUTH_CLIENT_ID", Some("hosted-google-client-id"));
         let _client_secret_guard =
@@ -1111,12 +1111,12 @@ mod tests {
 
         let _guard = lock_env();
         let _proxy_guard = set_env_var(
-            "IRONCLAW_OAUTH_EXCHANGE_URL",
+            "OPTIMCLAW_OAUTH_EXCHANGE_URL",
             Some("https://compose-api.example.com"),
         );
         let _gateway_token_guard = set_env_var("GATEWAY_AUTH_TOKEN", Some("gateway-test-token"));
         let _oauth_proxy_token_guard = set_env_var(
-            "IRONCLAW_OAUTH_PROXY_AUTH_TOKEN",
+            "OPTIMCLAW_OAUTH_PROXY_AUTH_TOKEN",
             Some("shared-oauth-proxy-secret"),
         );
         let _client_id_guard =

@@ -1,5 +1,5 @@
 #![no_main]
-use ironclaw_safety::params_contain_manual_credentials;
+use optimclaw_safety::params_contain_manual_credentials;
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {

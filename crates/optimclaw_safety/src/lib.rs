@@ -147,7 +147,7 @@ impl SafetyLayer {
     pub fn scan_inbound_for_secrets(&self, input: &str) -> Option<String> {
         let warning = "Your message appears to contain a secret (API key, token, or credential). \
              For security, it was not sent to the AI. Please remove the secret and try again. \
-             To store credentials, use the setup form or `ironclaw config set <name> <value>`.";
+             To store credentials, use the setup form or `optimclaw config set <name> <value>`.";
         match self.leak_detector.scan_and_clean(input) {
             Ok(cleaned) if cleaned != input => Some(warning.to_string()),
             Err(_) => Some(warning.to_string()),
@@ -506,7 +506,7 @@ mod tests {
     }
 
     /// Adversarial tests for SafetyLayer truncation at multi-byte boundaries.
-    /// See <https://github.com/nearai/ironclaw/issues/1025>.
+    /// See <https://github.com/nearai/optimclaw/issues/1025>.
     mod adversarial {
         use super::*;
 

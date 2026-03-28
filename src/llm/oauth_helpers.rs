@@ -35,11 +35,11 @@ pub enum OAuthCallbackError {
 
 /// Returns the OAuth callback base URL.
 ///
-/// Checks `IRONCLAW_OAUTH_CALLBACK_URL` env var first (useful for remote/VPS
+/// Checks `OPTIMCLAW_OAUTH_CALLBACK_URL` env var first (useful for remote/VPS
 /// deployments where `127.0.0.1` is unreachable from the user's browser),
 /// then falls back to `http://{callback_host()}:{OAUTH_CALLBACK_PORT}`.
 pub fn callback_url() -> String {
-    crate::config::helpers::env_or_override("IRONCLAW_OAUTH_CALLBACK_URL")
+    crate::config::helpers::env_or_override("OPTIMCLAW_OAUTH_CALLBACK_URL")
         .unwrap_or_else(|| format!("http://{}:{}", callback_host(), OAUTH_CALLBACK_PORT))
 }
 
@@ -301,7 +301,7 @@ pub fn landing_html(provider_name: &str, success: bool) -> String {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IronClaw - {heading}</title>
+<title>OptimClaw - {heading}</title>
 <style>
   * {{ margin:0; padding:0; box-sizing:border-box }}
   body {{
@@ -347,7 +347,7 @@ pub fn landing_html(provider_name: &str, success: bool) -> String {
     {icon}
     <h1>{heading}</h1>
     <p>{subtitle}</p>
-    <div class="brand">IronClaw</div>
+    <div class="brand">OptimClaw</div>
   </div>
 </body>
 </html>"#,

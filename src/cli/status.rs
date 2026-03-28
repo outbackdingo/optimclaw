@@ -5,7 +5,7 @@
 
 use std::path::PathBuf;
 
-use crate::bootstrap::ironclaw_base_dir;
+use crate::bootstrap::optimclaw_base_dir;
 use crate::cli::fmt;
 use crate::settings::Settings;
 
@@ -40,7 +40,7 @@ pub async fn run_status_command() -> anyhow::Result<()> {
     let settings = load_settings();
 
     println!();
-    println!("  {}IronClaw Status{}", fmt::bold(), fmt::reset());
+    println!("  {}OptimClaw Status{}", fmt::bold(), fmt::reset());
     println!();
 
     // Version
@@ -91,7 +91,7 @@ pub async fn run_status_command() -> anyhow::Result<()> {
     let session_value = if session_path.exists() {
         format!("found ({})", session_path.display())
     } else {
-        "not found (run `ironclaw onboard`)".to_string()
+        "not found (run `optimclaw onboard`)".to_string()
     };
     println!("{}", fmt::kv_line("Session", &session_value, 12));
 
@@ -188,7 +188,7 @@ pub async fn run_status_command() -> anyhow::Result<()> {
         "{}",
         fmt::kv_line(
             "Config",
-            &crate::bootstrap::ironclaw_env_path().display().to_string(),
+            &crate::bootstrap::optimclaw_env_path().display().to_string(),
             12,
         )
     );
@@ -238,11 +238,11 @@ fn count_wasm_files(dir: &std::path::Path) -> usize {
 }
 
 fn default_tools_dir() -> PathBuf {
-    ironclaw_base_dir().join("tools")
+    optimclaw_base_dir().join("tools")
 }
 
 fn default_channels_dir() -> PathBuf {
-    ironclaw_base_dir().join("channels")
+    optimclaw_base_dir().join("channels")
 }
 
 #[cfg(test)]

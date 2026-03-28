@@ -9,21 +9,21 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use ironclaw::agent::{Agent, AgentDeps};
-use ironclaw::app::{AppBuilder, AppBuilderFlags};
-use ironclaw::channels::web::log_layer::LogBroadcaster;
-use ironclaw::channels::{OutgoingResponse, StatusUpdate};
-use ironclaw::config::Config;
-use ironclaw::db::Database;
-use ironclaw::llm::{LlmProvider, SessionConfig, SessionManager};
-use ironclaw::tools::Tool;
+use optimclaw::agent::{Agent, AgentDeps};
+use optimclaw::app::{AppBuilder, AppBuilderFlags};
+use optimclaw::channels::web::log_layer::LogBroadcaster;
+use optimclaw::channels::{OutgoingResponse, StatusUpdate};
+use optimclaw::config::Config;
+use optimclaw::db::Database;
+use optimclaw::llm::{LlmProvider, SessionConfig, SessionManager};
+use optimclaw::tools::Tool;
 
 use crate::support::instrumented_llm::InstrumentedLlm;
 use crate::support::metrics::{ToolInvocation, TraceMetrics};
 use crate::support::test_channel::{TestChannel, TestChannelHandle};
 use crate::support::trace_llm::{LlmTrace, TraceLlm};
 
-use ironclaw::llm::recording::{HttpExchange, HttpInterceptor, ReplayingHttpInterceptor};
+use optimclaw::llm::recording::{HttpExchange, HttpInterceptor, ReplayingHttpInterceptor};
 
 // ---------------------------------------------------------------------------
 // TestRig
@@ -46,16 +46,16 @@ pub struct TestRig {
     db: Arc<dyn Database>,
     /// Workspace handle for direct memory operations in tests.
     #[cfg(feature = "libsql")]
-    workspace: Option<Arc<ironclaw::workspace::Workspace>>,
+    workspace: Option<Arc<optimclaw::workspace::Workspace>>,
     /// The underlying TraceLlm for inspecting captured requests.
     #[cfg(feature = "libsql")]
     trace_llm: Option<Arc<TraceLlm>>,
     /// Extension manager for direct extension operations in tests.
     #[cfg(feature = "libsql")]
-    extension_manager: Option<Arc<ironclaw::extensions::ExtensionManager>>,
+    extension_manager: Option<Arc<optimclaw::extensions::ExtensionManager>>,
     /// Session manager for direct session/thread access in tests.
     #[cfg(feature = "libsql")]
-    session_manager: Arc<ironclaw::agent::SessionManager>,
+    session_manager: Arc<optimclaw::agent::SessionManager>,
     /// Temp directory guard -- keeps the libSQL database file alive.
     #[cfg(feature = "libsql")]
     _temp_dir: tempfile::TempDir,
@@ -68,14 +68,14 @@ impl TestRig {
     }
 
     /// Inject a raw `IncomingMessage` (for tests that need attachments, etc.).
-    pub async fn send_incoming(&self, msg: ironclaw::channels::IncomingMessage) {
+    pub async fn send_incoming(&self, msg: optimclaw::channels::IncomingMessage) {
         self.channel.send_incoming(msg).await;
     }
 
     /// Return all message lists that were sent to the LLM provider.
     ///
     /// Only available when the rig was built with a `TraceLlm` (i.e., via `.with_trace()`).
-    pub fn captured_llm_requests(&self) -> Vec<Vec<ironclaw::llm::ChatMessage>> {
+    pub fn captured_llm_requests(&self) -> Vec<Vec<optimclaw::llm::ChatMessage>> {
         self.trace_llm
             .as_ref()
             .map(|t| t.captured_requests())
@@ -83,13 +83,13 @@ impl TestRig {
     }
 
     /// Return the extension manager for direct extension operations in tests.
-    pub fn extension_manager(&self) -> Option<&Arc<ironclaw::extensions::ExtensionManager>> {
+    pub fn extension_manager(&self) -> Option<&Arc<optimclaw::extensions::ExtensionManager>> {
         self.extension_manager.as_ref()
     }
 
     /// Return the session manager for direct session/thread access in tests.
     #[cfg(feature = "libsql")]
-    pub fn session_manager(&self) -> &Arc<ironclaw::agent::SessionManager> {
+    pub fn session_manager(&self) -> &Arc<optimclaw::agent::SessionManager> {
         &self.session_manager
     }
 
@@ -261,7 +261,7 @@ impl TestRig {
             let completed = self.tool_calls_completed();
             let mut results = self.tool_results();
             for status in self.channel.captured_status_events() {
-                if let ironclaw::channels::StatusUpdate::ToolCompleted {
+                if let optimclaw::channels::StatusUpdate::ToolCompleted {
                     name,
                     success: false,
                     error,
@@ -304,7 +304,7 @@ impl TestRig {
         let completed = self.tool_calls_completed();
         let mut results = self.tool_results();
         for status in self.channel.captured_status_events() {
-            if let ironclaw::channels::StatusUpdate::ToolCompleted {
+            if let optimclaw::channels::StatusUpdate::ToolCompleted {
                 name,
                 success: false,
                 error,
@@ -492,8 +492,8 @@ impl TestRigBuilder {
     /// Requires the `libsql` feature for the embedded test database.
     #[cfg(feature = "libsql")]
     pub async fn build(self) -> TestRig {
-        use ironclaw::channels::ChannelManager;
-        use ironclaw::db::libsql::LibSqlBackend;
+        use optimclaw::channels::ChannelManager;
+        use optimclaw::db::libsql::LibSqlBackend;
 
         // Destructure self up front to avoid partial-move issues.
         let TestRigBuilder {
@@ -520,7 +520,7 @@ impl TestRigBuilder {
             .run_migrations()
             .await
             .expect("failed to run migrations");
-        let db: Arc<dyn ironclaw::db::Database> = Arc::new(backend);
+        let db: Arc<dyn optimclaw::db::Database> = Arc::new(backend);
 
         // 2. Build Config::for_testing().
         let skills_dir = temp_dir.path().join("skills");
@@ -599,7 +599,7 @@ impl TestRigBuilder {
         components.config.agent.auto_approve_tools = auto_approve_tools.unwrap_or(true);
         components.config.agent.allow_local_tools = true;
 
-        let scheduler_slot: ironclaw::tools::builtin::SchedulerSlot =
+        let scheduler_slot: optimclaw::tools::builtin::SchedulerSlot =
             Arc::new(tokio::sync::RwLock::new(None));
 
         // Build HTTP interceptor once — shared by both AgentDeps and WASM tools.
@@ -635,14 +635,14 @@ impl TestRigBuilder {
 
             // Routine tools: create a RoutineEngine with the LLM and workspace.
             if let (Some(db_arc), Some(ws)) = (&components.db, &components.workspace) {
-                use ironclaw::agent::routine_engine::RoutineEngine;
-                use ironclaw::config::RoutineConfig;
+                use optimclaw::agent::routine_engine::RoutineEngine;
+                use optimclaw::config::RoutineConfig;
 
                 let routine_config = RoutineConfig::default();
                 let (notify_tx, _notify_rx) = tokio::sync::mpsc::channel(16);
                 let engine = Arc::new(RoutineEngine::new(
                     routine_config,
-                    ironclaw::tenant::AdminScope::new(Arc::clone(db_arc)),
+                    optimclaw::tenant::AdminScope::new(Arc::clone(db_arc)),
                     components.llm.clone(),
                     Arc::clone(ws),
                     notify_tx,
@@ -650,7 +650,7 @@ impl TestRigBuilder {
                     None,
                     components.tools.clone(),
                     components.safety.clone(),
-                    ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+                    optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
                 ));
                 components
                     .tools
@@ -661,10 +661,10 @@ impl TestRigBuilder {
             // AppBuilder did not wire them for this environment.
             if enable_skills {
                 let registry = Arc::new(std::sync::RwLock::new(
-                    ironclaw::skills::SkillRegistry::new(temp_dir.path().join("skills"))
+                    optimclaw::skills::SkillRegistry::new(temp_dir.path().join("skills"))
                         .with_installed_dir(temp_dir.path().join("installed_skills")),
                 ));
-                let catalog = ironclaw::skills::catalog::shared_catalog();
+                let catalog = optimclaw::skills::catalog::shared_catalog();
                 components
                     .tools
                     .register_skill_tools(Arc::clone(&registry), Arc::clone(&catalog));
@@ -679,7 +679,7 @@ impl TestRigBuilder {
 
             // Register WASM tools with the shared HTTP interceptor.
             if !wasm_tools.is_empty() {
-                use ironclaw::tools::wasm::{
+                use optimclaw::tools::wasm::{
                     Capabilities, CapabilitiesFile, WasmRuntimeConfig, WasmToolRuntime,
                     WasmToolWrapper,
                 };
@@ -738,7 +738,7 @@ impl TestRigBuilder {
         let db_ref = components.db.clone().expect("test rig requires a database");
         let workspace_ref = components.workspace.clone();
         let ext_mgr_ref = components.extension_manager.clone();
-        let session_manager_ref = Arc::new(ironclaw::agent::SessionManager::new());
+        let session_manager_ref = Arc::new(optimclaw::agent::SessionManager::new());
 
         // 7. Construct AgentDeps from AppComponents (mirrors main.rs).
         let deps = AgentDeps {
@@ -759,10 +759,10 @@ impl TestRigBuilder {
             http_interceptor,
             transcription: None,
             document_extraction: None,
-            sandbox_readiness: ironclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
+            sandbox_readiness: optimclaw::agent::routine_engine::SandboxReadiness::DisabledByConfig,
             builder: None,
             llm_backend: "nearai".to_string(),
-            tenant_rates: std::sync::Arc::new(ironclaw::tenant::TenantRateRegistry::new(4, 3)),
+            tenant_rates: std::sync::Arc::new(optimclaw::tenant::TenantRateRegistry::new(4, 3)),
         };
 
         // 7. Create TestChannel and ChannelManager.
@@ -785,7 +785,7 @@ impl TestRigBuilder {
 
         // 8. Create Agent.
         let routine_config = if enable_routines {
-            Some(ironclaw::config::RoutineConfig {
+            Some(optimclaw::config::RoutineConfig {
                 enabled: true,
                 cron_check_interval_secs: 60,
                 max_concurrent_routines: 3,
@@ -854,7 +854,7 @@ impl TestRig {
 
     /// Get the workspace handle for direct memory operations.
     #[cfg(feature = "libsql")]
-    pub fn workspace(&self) -> Option<&Arc<ironclaw::workspace::Workspace>> {
+    pub fn workspace(&self) -> Option<&Arc<optimclaw::workspace::Workspace>> {
         self.workspace.as_ref()
     }
 

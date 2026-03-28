@@ -2,7 +2,7 @@
 name = "discord-channel"
 version = "0.2.0"
 edition = "2021"
-description = "Discord channel for IronClaw"
+description = "Discord channel for OptimClaw"
 license = "MIT OR Apache-2.0"
 publish = false
 

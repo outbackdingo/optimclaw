@@ -13,7 +13,7 @@
 //! Until `resolve()` falls back to settings (or the CLI writes `.env`),
 //! an `enable`/`disable` command would silently fail to take effect.
 //!
-//! `status` (runtime health) requires connecting to a running IronClaw instance
+//! `status` (runtime health) requires connecting to a running OptimClaw instance
 //! via IPC or HTTP, which does not exist yet as a CLI control plane.
 
 use std::path::Path;
@@ -211,7 +211,7 @@ async fn cmd_list(
         println!("Use --verbose for details.");
         println!();
         println!("Note: enable/disable not yet available. Channel configuration is");
-        println!("managed via environment variables. See 'ironclaw onboard --channels-only'.");
+        println!("managed via environment variables. See 'optimclaw onboard --channels-only'.");
     }
 
     Ok(())

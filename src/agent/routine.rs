@@ -760,7 +760,7 @@ mod tests {
     #[test]
     fn test_system_event_trigger_roundtrip() {
         let mut filters = std::collections::HashMap::new();
-        filters.insert("repo".to_string(), "nearai/ironclaw".to_string());
+        filters.insert("repo".to_string(), "nearai/optimclaw".to_string());
         filters.insert("action".to_string(), "opened".to_string());
         let trigger = Trigger::SystemEvent {
             source: "github".to_string(),
