@@ -33,6 +33,10 @@ use crate::channels::relay::DEFAULT_RELAY_NAME;
 use crate::channels::web::auth::{
     AuthenticatedUser, CombinedAuthState, UserIdentity, auth_middleware,
 };
+use crate::channels::web::handlers::frontend::{
+    frontend_layout_handler, frontend_layout_update_handler, frontend_widget_file_handler,
+    frontend_widgets_handler,
+};
 use crate::channels::web::handlers::jobs::{
     job_files_list_handler, job_files_read_handler, jobs_cancel_handler, jobs_detail_handler,
     jobs_events_handler, jobs_list_handler, jobs_prompt_handler, jobs_restart_handler,
@@ -45,10 +49,6 @@ use crate::channels::web::handlers::memory::{
 use crate::channels::web::handlers::routines::{
     routines_delete_handler, routines_detail_handler, routines_list_handler,
     routines_summary_handler, routines_toggle_handler, routines_trigger_handler,
-};
-use crate::channels::web::handlers::frontend::{
-    frontend_layout_handler, frontend_layout_update_handler, frontend_widget_file_handler,
-    frontend_widgets_handler,
 };
 use crate::channels::web::handlers::skills::{
     skills_install_handler, skills_list_handler, skills_remove_handler, skills_search_handler,
