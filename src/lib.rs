@@ -43,6 +43,8 @@ pub mod app;
 pub mod boot_screen;
 pub mod bootstrap;
 pub mod channels;
+#[cfg(feature = "cluster")]
+pub mod cluster;
 pub mod cli;
 pub mod config;
 pub mod context;

@@ -154,7 +154,19 @@ impl Agent {
 
         // Build system prompts once for this turn. Two variants: with tools
         // (normal iterations) and without (force_text final iteration).
-        let initial_tool_defs = self.tools().tool_definitions().await;
+        //
+        // Lazy tool loading: only send core tools to keep the prompt small.
+        // The model can discover additional tools via `tool_info`.
+        let initial_tool_defs = if std::env::var("OPTIMCLAW_LAZY_TOOLS").is_ok() {
+            let core = &[
+                "shell", "read_file", "write_file", "list_dir", "apply_patch",
+                "tool_info", "memory_read", "memory_write", "memory_search",
+                "echo", "time", "http",
+            ];
+            self.tools().tool_definitions_for(core).await
+        } else {
+            self.tools().tool_definitions().await
+        };
         let initial_tool_defs = if !active_skills.is_empty() {
             crate::skills::attenuate_tools(&initial_tool_defs, &active_skills).tools
         } else {
@@ -286,7 +298,16 @@ impl<'a> LoopDelegate for ChatDelegate<'a> {
         let force_text = iteration >= self.force_text_at;
 
         // Refresh tool definitions each iteration so newly built tools become visible
-        let tool_defs = self.agent.tools().tool_definitions().await;
+        let tool_defs = if std::env::var("OPTIMCLAW_LAZY_TOOLS").is_ok() {
+            let core = &[
+                "shell", "read_file", "write_file", "list_dir", "apply_patch",
+                "tool_info", "memory_read", "memory_write", "memory_search",
+                "echo", "time", "http",
+            ];
+            self.agent.tools().tool_definitions_for(core).await
+        } else {
+            self.agent.tools().tool_definitions().await
+        };
 
         // Apply trust-based tool attenuation if skills are active.
         let tool_defs = if !self.active_skills.is_empty() {
