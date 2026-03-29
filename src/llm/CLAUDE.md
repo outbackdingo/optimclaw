@@ -39,6 +39,7 @@ Set via `LLM_BACKEND` env var:
 | `anthropic` | Anthropic | `ANTHROPIC_API_KEY` |
 | `github_copilot` | GitHub Copilot Chat API | `GITHUB_COPILOT_TOKEN`, `GITHUB_COPILOT_MODEL` |
 | `ollama` | Ollama local | `OLLAMA_BASE_URL` |
+| `vllm` | vLLM inference server | `VLLM_BASE_URL` (default: `http://localhost:8000/v1`), `VLLM_MODEL`, `VLLM_API_KEY` (optional) |
 | `openai_compatible` | Any OpenAI-compatible endpoint | `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` |
 | `tinfoil` | Tinfoil TEE inference | `TINFOIL_API_KEY`, `TINFOIL_MODEL` |
 | `bedrock` | AWS Bedrock (requires `--features bedrock`) | `BEDROCK_REGION`, `BEDROCK_MODEL`, `AWS_PROFILE` |

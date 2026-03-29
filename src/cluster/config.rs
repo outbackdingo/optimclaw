@@ -32,6 +32,20 @@ pub struct ClusterConfig {
     pub broadcast_addr: Ipv4Addr,
     /// Path to persist mesh keypair.
     pub keys_path: String,
+    /// Static remote peers to connect to (host:port, may include hostnames).
+    /// Resolved and retried periodically. LAN discovery via UDP broadcast is unaffected.
+    /// Set via CLUSTER_STATIC_PEERS (comma-separated).
+    pub static_peers: Vec<String>,
+    /// Externally-reachable address advertised to static/remote peers (host:port).
+    /// Needed when this node is behind NAT with a port forward or public IP.
+    /// Set via CLUSTER_ADVERTISE_ADDR.
+    pub advertise_addr: Option<String>,
+    /// Enable VLESS proxy inbound on the mesh QUIC port (ALPN "oproxy/1").
+    /// Set via CLUSTER_PROXY_ENABLED=1.
+    pub proxy_enabled: bool,
+    /// UUIDs allowed to authenticate as VLESS proxy clients.
+    /// Set via CLUSTER_PROXY_UUIDS (comma-separated standard UUID strings).
+    pub proxy_uuids: Vec<String>,
 }
 
 impl ClusterConfig {
@@ -66,6 +80,24 @@ impl ClusterConfig {
                 .unwrap_or(Ipv4Addr::BROADCAST),
             keys_path: std::env::var("CLUSTER_KEYS_PATH")
                 .unwrap_or_else(|_| format!("{}/.optimclaw/mesh_keys.json", home)),
+            static_peers: std::env::var("CLUSTER_STATIC_PEERS")
+                .unwrap_or_default()
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(String::from)
+                .collect(),
+            advertise_addr: std::env::var("CLUSTER_ADVERTISE_ADDR").ok(),
+            proxy_enabled: std::env::var("CLUSTER_PROXY_ENABLED")
+                .map(|v| v == "1" || v == "true")
+                .unwrap_or(false),
+            proxy_uuids: std::env::var("CLUSTER_PROXY_UUIDS")
+                .unwrap_or_default()
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(String::from)
+                .collect(),
         }
     }
 }

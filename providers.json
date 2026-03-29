@@ -56,6 +56,24 @@
     }
   },
   {
+    "id": "vllm",
+    "aliases": ["vllm-server", "vllm_server"],
+    "protocol": "open_ai_completions",
+    "default_base_url": "http://localhost:8000/v1",
+    "base_url_env": "VLLM_BASE_URL",
+    "api_key_env": "VLLM_API_KEY",
+    "api_key_required": false,
+    "model_env": "VLLM_MODEL",
+    "default_model": "default",
+    "description": "vLLM inference server — local or remote, OpenAI-compatible. Set VLLM_MODEL to the model name loaded in the server (e.g. meta-llama/Llama-3-8B-Instruct). Increase LLM_REQUEST_TIMEOUT_SECS for large models.",
+    "setup": {
+      "kind": "open_ai_compatible",
+      "secret_name": "llm_vllm_api_key",
+      "display_name": "vLLM",
+      "can_list_models": true
+    }
+  },
+  {
     "id": "openai_compatible",
     "aliases": [
       "openai-compatible",
@@ -69,7 +87,7 @@
     "model_env": "LLM_MODEL",
     "default_model": "default",
     "extra_headers_env": "LLM_EXTRA_HEADERS",
-    "description": "Custom OpenAI-compatible endpoint (vLLM, LiteLLM, etc.)",
+    "description": "Custom OpenAI-compatible endpoint (LiteLLM, LM Studio, etc.)",
     "setup": {
       "kind": "open_ai_compatible",
       "secret_name": "llm_compatible_api_key",

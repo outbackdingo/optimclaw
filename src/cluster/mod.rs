@@ -1,8 +1,9 @@
 //! Autonomous AI mesh network for OptimClaw.
 //!
 //! Nodes self-discover via UDP beacons, form a peer-to-peer overlay mesh
-//! with post-quantum encrypted WebSocket channels, and route tasks
-//! intelligently based on GPU capability, model availability, and load.
+//! with post-quantum encrypted QUIC channels (UDP, NAT hole-punch capable),
+//! and route tasks intelligently based on GPU capability, model availability,
+//! and load. A VLESS proxy inbound is optionally available on the same port.
 
 pub mod api;
 pub mod beacon;
@@ -10,7 +11,9 @@ pub mod config;
 pub mod crypto;
 pub mod gossip;
 pub mod overlay;
+pub mod proxy;
 pub mod router;
+pub mod transport;
 pub mod types;
 
 use std::collections::HashMap;
@@ -55,13 +58,13 @@ impl MeshNode {
         // Message channel for incoming mesh messages
         let (incoming_tx, mut incoming_rx) = mpsc::channel::<(NodeId, MeshMessage)>(256);
 
-        // Initialize overlay mesh
+        // Initialize overlay mesh (binds the QUIC endpoint)
         let overlay = Arc::new(OverlayMesh::new(
             identity.clone(),
             gossip.clone(),
             config.clone(),
             incoming_tx,
-        ));
+        )?);
 
         let (shutdown_tx, _) = tokio::sync::broadcast::channel(1);
         let (event_tx, _) = tokio::sync::broadcast::channel(128);
@@ -82,10 +85,25 @@ impl MeshNode {
         let mut beacon_rx = beacon::start_beacon(&config, identity.clone()).await?;
         tracing::info!("Beacon broadcasting on port {}", config.beacon_port);
 
-        // Start the overlay WebSocket listener
-        overlay.start_listener().await?;
+        // Parse proxy UUIDs (only matters when CLUSTER_PROXY_ENABLED=1)
+        let proxy_uuids: Arc<Vec<[u8; 16]>> = Arc::new(
+            config
+                .proxy_uuids
+                .iter()
+                .filter_map(|s| match proxy::parse_uuid(s) {
+                    Ok(u) => Some(u),
+                    Err(e) => {
+                        tracing::warn!("Ignoring invalid proxy UUID '{}': {}", s, e);
+                        None
+                    }
+                })
+                .collect(),
+        );
 
-        // Task: process discovered peers -- connect via PQ-encrypted WebSocket
+        // Start the QUIC overlay listener (also dispatches VLESS proxy if enabled)
+        overlay.start_listener(proxy_uuids).await?;
+
+        // Task: process discovered peers — connect via PQ-encrypted QUIC (UDP hole-punch)
         let overlay_disc = overlay.clone();
         let gossip_disc = gossip.clone();
         tokio::spawn(async move {
@@ -147,6 +165,55 @@ impl MeshNode {
                 handle_mesh_message(&gossip_msg, &overlay_msg, from, msg, &pending_msg, &event_tx_msg).await;
             }
         });
+
+        // Task: static peer connector — only active when CLUSTER_STATIC_PEERS is set.
+        // LAN peers continue to be discovered via UDP broadcast above; this task handles
+        // nodes on remote/NAT'd networks that are reachable by hostname or public IP.
+        if !config.static_peers.is_empty() {
+            let overlay_sp = overlay.clone();
+            let static_peers = config.static_peers.clone();
+            // Retry every 3× the beacon interval so we don't spam unreachable hosts.
+            let retry_interval = config.beacon_interval * 3;
+            let mut shutdown_rx_sp = shutdown_tx.subscribe();
+            tokio::spawn(async move {
+                loop {
+                    for peer_str in &static_peers {
+                        match tokio::net::lookup_host(peer_str.as_str()).await {
+                            Ok(mut addrs) => {
+                                if let Some(addr) = addrs.next() {
+                                    if overlay_sp.is_connected_by_addr(&addr).await {
+                                        continue;
+                                    }
+                                    let overlay_conn = overlay_sp.clone();
+                                    let label = peer_str.clone();
+                                    tokio::spawn(async move {
+                                        if let Err(e) = overlay_conn.connect_to_addr(addr).await {
+                                            tracing::debug!(
+                                                "Static peer {} unreachable: {}",
+                                                label,
+                                                e
+                                            );
+                                        }
+                                    });
+                                }
+                            }
+                            Err(e) => {
+                                tracing::debug!(
+                                    "Failed to resolve static peer {}: {}",
+                                    peer_str,
+                                    e
+                                );
+                            }
+                        }
+                    }
+
+                    tokio::select! {
+                        _ = tokio::time::sleep(retry_interval) => {}
+                        _ = shutdown_rx_sp.recv() => break,
+                    }
+                }
+            });
+        }
 
         // Task: periodic gossip / failure detection
         let gossip_tick = gossip.clone();
@@ -424,7 +491,6 @@ async fn handle_mesh_message(
             // Execute the task via optimclaw single-message mode
             let overlay_exec = overlay.identity.node_id;
             let from_id = from;
-            let overlay_ref = overlay.incoming_tx.clone();
             let task_id_exec = task_id.clone();
             let content = envelope.content.clone();
 

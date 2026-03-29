@@ -191,7 +191,8 @@ pqcrypto-kyber = { version = "0.8", optional = true }
 pqcrypto-traits = { version = "0.3", optional = true }
 sys-info = { version = "0.9", optional = true }
 hostname = { version = "0.4", optional = true }
-tokio-tungstenite = { version = "0.26", optional = true }
+quinn = { version = "0.11", default-features = false, features = ["runtime-tokio", "rustls-ring"], optional = true }
+rcgen = { version = "0.13", optional = true }
 
 # macOS keychain
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -244,7 +245,7 @@ integration = []
 html-to-markdown = ["dep:html-to-markdown-rs", "dep:readabilityrs"]
 bedrock = ["dep:aws-config", "dep:aws-sdk-bedrockruntime", "dep:aws-smithy-types"]
 import = ["dep:json5", "libsql"]
-cluster = ["dep:pqcrypto-kyber", "dep:pqcrypto-traits", "dep:sys-info", "dep:hostname", "dep:tokio-tungstenite"]
+cluster = ["dep:pqcrypto-kyber", "dep:pqcrypto-traits", "dep:sys-info", "dep:hostname", "dep:quinn", "dep:rcgen", "dep:rustls"]
 
 [[test]]
 name = "e2e_thread_scheduling"
