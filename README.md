@@ -27,6 +27,8 @@
 <p align="center">
   <a href="#philosophy">Philosophy</a> •
   <a href="#features">Features</a> •
+  <a href="#mesh-cluster">Mesh Cluster</a> •
+  <a href="#lazy-tools">Lazy Tools</a> •
   <a href="#installation">Installation</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#security">Security</a> •
@@ -78,6 +80,50 @@ OptimClaw is the AI assistant you can actually trust with your personal and prof
 - **Hybrid Search** - Full-text + vector search using Reciprocal Rank Fusion
 - **Workspace Filesystem** - Flexible path-based storage for notes, logs, and context
 - **Identity Files** - Maintain consistent personality and preferences across sessions
+
+## Mesh Cluster
+
+OptimClaw instances can form an **autonomous AI mesh network** where nodes discover each other automatically, coordinate via a gossip protocol, and route tasks intelligently across the cluster.
+
+Key highlights:
+
+- **Zero-config discovery** -- UDP beacon broadcast finds peers on the local network automatically
+- **Post-quantum encryption** -- ML-KEM-768 key exchange with AES-256-GCM authenticated encryption protects all inter-node traffic against both classical and quantum adversaries
+- **SWIM gossip membership** -- Reliable failure detection and cluster state convergence in O(log N) rounds
+- **Intelligent task routing** -- A scoring algorithm balances load, latency, capability match, session affinity, and region locality to pick the best node for each task
+- **Graceful degradation** -- Nodes operate independently if connectivity is lost; no split-brain data corruption
+
+Quick start (two nodes on one machine):
+
+```bash
+# Terminal 1
+export CLUSTER_ENABLED=true CLUSTER_SECRET="your-32-char-secret-here-change-me" CLUSTER_NODE_ID=node-a
+cargo run
+
+# Terminal 2
+export CLUSTER_ENABLED=true CLUSTER_SECRET="your-32-char-secret-here-change-me" CLUSTER_NODE_ID=node-b CLUSTER_BIND_PORT=9410
+cargo run
+```
+
+Monitor via `GET /api/mesh/status` and `GET /api/mesh/nodes`.
+
+See [docs/MESH_CLUSTER.md](docs/MESH_CLUSTER.md) for the full guide covering architecture, configuration reference, security model, and troubleshooting.
+
+## Lazy Tools
+
+Lazy tool loading reduces the system prompt from approximately 13,000 tokens to approximately 4,000 tokens by deferring tool schemas that are not immediately needed.
+
+Enable it with:
+
+```bash
+export OPTIMCLAW_LAZY_TOOLS=1
+```
+
+When enabled, 12 core tools (echo, time, json, http, web_fetch, file_read, file_write, shell, memory_search, memory_write, message, tool_info) are loaded eagerly. All other tools -- including MCP, WASM, and skill tools -- are listed by name only. The LLM calls `tool_info` to load the full schema for any additional tool on demand.
+
+This is recommended for production deployments and cost-sensitive usage with expensive models.
+
+See [docs/LAZY_TOOLS.md](docs/LAZY_TOOLS.md) for the full guide.
 
 ## Installation
 

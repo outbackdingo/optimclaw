@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>OptimClaw - mesh-cluster</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="data:text/css,body{font-family:Inter,system-ui,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:%23e0e0e0;background:%231a1a2e}h1,h2,h3{color:%23fab283}code{background:%230f3460;padding:2px 6px;border-radius:3px;color:%2300d4aa}pre{background:%230f3460;padding:16px;border-radius:8px;overflow-x:auto}pre code{background:none}a{color:%235c9cf5}table{border-collapse:collapse;width:100%}th,td{border:1px solid%2330363d;padding:8px;text-align:left}th{background:%230f3460}" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">OptimClaw - mesh-cluster</h1>
+</header>
+<h1 id="optimclaw-mesh-cluster">OptimClaw Mesh Cluster</h1>
+<h2 id="overview">Overview</h2>
+<p>The OptimClaw Mesh Cluster enables multiple OptimClaw instances to
+form an autonomous AI mesh network. Each node in the cluster operates
+independently while collaborating on tasks, sharing workload, and
+providing fault tolerance. Nodes discover each other automatically via
+UDP beacons, authenticate using post-quantum cryptography, and
+coordinate through a gossip-based membership protocol.</p>
+<p>Key capabilities:</p>
+<ul>
+<li><strong>Automatic discovery</strong> – zero-configuration node
+joining via UDP broadcast beacons</li>
+<li><strong>Post-quantum security</strong> – ML-KEM-768 key
+encapsulation with AES-256-GCM authenticated encryption</li>
+<li><strong>Gossip membership</strong> – SWIM protocol for reliable
+failure detection and cluster state convergence</li>
+<li><strong>Intelligent task routing</strong> – scoring algorithm that
+considers load, latency, capability, and affinity</li>
+<li><strong>Graceful degradation</strong> – nodes operate independently
+if connectivity is lost</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<pre><code>                         ┌─────────────────────────────────────────────┐
+                         │              Mesh Cluster                   │
+                         │                                             │
+  ┌──────────────┐       │   ┌──────────┐    Gossip     ┌──────────┐  │
+  │   Client     │──────►│   │  Node A  │◄────────────►│  Node B  │  │
+  │  (any chan.) │       │   │          │   (SWIM)      │          │  │
+  └──────────────┘       │   │ ┌──────┐ │               │ ┌──────┐ │  │
+                         │   │ │Agent │ │               │ │Agent │ │  │
+                         │   │ │ Loop │ │               │ │ Loop │ │  │
+                         │   │ └──────┘ │               │ └──────┘ │  │
+                         │   │ ┌──────┐ │               │ ┌──────┐ │  │
+                         │   │ │Tools │ │               │ │Tools │ │  │
+                         │   │ └──────┘ │               │ └──────┘ │  │
+                         │   └─────┬────┘               └────┬─────┘  │
+                         │         │                         │        │
+                         │         │    UDP Beacons          │        │
+                         │         │◄───────────────────────►│        │
+                         │         │                         │        │
+                         │         │    Task Routing          │        │
+                         │         │◄───────────────────────►│        │
+                         │         │   (ML-KEM-768 +         │        │
+                         │         │    AES-256-GCM)         │        │
+                         │   ┌─────┴────┐               ┌────┴─────┐  │
+                         │   │  Node C  │◄────────────►│  Node D  │  │
+                         │   └──────────┘   Gossip      └──────────┘  │
+                         │                                             │
+                         └─────────────────────────────────────────────┘
+
+Data flow:
+  1. UDP beacon broadcast → node discovery
+  2. ML-KEM-768 handshake → shared secret
+  3. AES-256-GCM encrypted channel established
+  4. SWIM gossip protocol → membership state
+  5. Task routing → best node selected via scoring
+  6. Encrypted task dispatch + result collection</code></pre>
+<h2 id="configuration">Configuration</h2>
+<p>All cluster settings are controlled via environment variables
+prefixed with <code>CLUSTER_</code>. They can be set in
+<code>~/.optimclaw/.env</code> or passed directly.</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 15%" />
+<col style="width: 23%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLUSTER_ENABLED</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Enable mesh cluster mode</td>
+</tr>
+<tr>
+<td><code>CLUSTER_NODE_ID</code></td>
+<td>string</td>
+<td>auto (hostname)</td>
+<td>Unique identifier for this node</td>
+</tr>
+<tr>
+<td><code>CLUSTER_BIND_ADDR</code></td>
+<td>string</td>
+<td><code>0.0.0.0</code></td>
+<td>Address to bind the cluster transport</td>
+</tr>
+<tr>
+<td><code>CLUSTER_BIND_PORT</code></td>
+<td>u16</td>
+<td><code>9400</code></td>
+<td>Port for the encrypted cluster transport</td>
+</tr>
+<tr>
+<td><code>CLUSTER_BEACON_PORT</code></td>
+<td>u16</td>
+<td><code>9401</code></td>
+<td>UDP port for discovery beacons</td>
+</tr>
+<tr>
+<td><code>CLUSTER_BEACON_INTERVAL_MS</code></td>
+<td>u64</td>
+<td><code>5000</code></td>
+<td>Milliseconds between beacon broadcasts</td>
+</tr>
+<tr>
+<td><code>CLUSTER_BEACON_SUBNET</code></td>
+<td>string</td>
+<td><code>255.255.255.255</code></td>
+<td>Broadcast address for beacons</td>
+</tr>
+<tr>
+<td><code>CLUSTER_SECRET</code></td>
+<td>string</td>
+<td><em>required</em></td>
+<td>Pre-shared key for cluster authentication (min 32 chars)</td>
+</tr>
+<tr>
+<td><code>CLUSTER_SEEDS</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Comma-separated seed node addresses (<code>host:port</code>) for
+non-broadcast environments</td>
+</tr>
+<tr>
+<td><code>CLUSTER_GOSSIP_INTERVAL_MS</code></td>
+<td>u64</td>
+<td><code>1000</code></td>
+<td>Milliseconds between gossip protocol rounds</td>
+</tr>
+<tr>
+<td><code>CLUSTER_GOSSIP_FANOUT</code></td>
+<td>u8</td>
+<td><code>3</code></td>
+<td>Number of peers to gossip with per round</td>
+</tr>
+<tr>
+<td><code>CLUSTER_SUSPICION_MULT</code></td>
+<td>u8</td>
+<td><code>4</code></td>
+<td>Multiplier for suspicion timeout (suspicion_mult *
+gossip_interval)</td>
+</tr>
+<tr>
+<td><code>CLUSTER_PROBE_INTERVAL_MS</code></td>
+<td>u64</td>
+<td><code>2000</code></td>
+<td>Milliseconds between SWIM probe pings</td>
+</tr>
+<tr>
+<td><code>CLUSTER_PROBE_TIMEOUT_MS</code></td>
+<td>u64</td>
+<td><code>500</code></td>
+<td>Timeout for a direct probe response</td>
+</tr>
+<tr>
+<td><code>CLUSTER_INDIRECT_PROBES</code></td>
+<td>u8</td>
+<td><code>3</code></td>
+<td>Number of indirect probes before suspicion</td>
+</tr>
+<tr>
+<td><code>CLUSTER_TASK_TIMEOUT_SECS</code></td>
+<td>u64</td>
+<td><code>300</code></td>
+<td>Timeout for a routed task to complete</td>
+</tr>
+<tr>
+<td><code>CLUSTER_MAX_NODES</code></td>
+<td>u16</td>
+<td><code>64</code></td>
+<td>Maximum cluster size</td>
+</tr>
+<tr>
+<td><code>CLUSTER_TLS_CERT</code></td>
+<td>path</td>
+<td><code>""</code></td>
+<td>Optional TLS certificate for cross-datacenter transport</td>
+</tr>
+<tr>
+<td><code>CLUSTER_TLS_KEY</code></td>
+<td>path</td>
+<td><code>""</code></td>
+<td>Optional TLS private key</td>
+</tr>
+<tr>
+<td><code>CLUSTER_ADVERTISE_ADDR</code></td>
+<td>string</td>
+<td>auto</td>
+<td>Address advertised to other nodes (for NAT traversal)</td>
+</tr>
+<tr>
+<td><code>CLUSTER_ADVERTISE_PORT</code></td>
+<td>u16</td>
+<td>same as bind</td>
+<td>Port advertised to other nodes</td>
+</tr>
+<tr>
+<td><code>CLUSTER_REGION</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Logical region tag for locality-aware routing</td>
+</tr>
+<tr>
+<td><code>CLUSTER_CAPABILITIES</code></td>
+<td>string</td>
+<td><code>""</code></td>
+<td>Comma-separated capability tags (e.g.,
+<code>gpu,high-memory,docker</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="minimal-configuration">Minimal Configuration</h3>
+<pre class="env"><code>CLUSTER_ENABLED=true
+CLUSTER_SECRET=my-very-long-pre-shared-key-at-least-32-chars</code></pre>
+<h3 id="cross-datacenter-configuration">Cross-Datacenter
+Configuration</h3>
+<pre class="env"><code>CLUSTER_ENABLED=true
+CLUSTER_SECRET=my-very-long-pre-shared-key-at-least-32-chars
+CLUSTER_SEEDS=dc1-node1.example.com:9400,dc2-node1.example.com:9400
+CLUSTER_ADVERTISE_ADDR=203.0.113.10
+CLUSTER_REGION=us-east-1
+CLUSTER_TLS_CERT=/etc/optimclaw/cluster.crt
+CLUSTER_TLS_KEY=/etc/optimclaw/cluster.key</code></pre>
+<h2 id="discovery-protocol">Discovery Protocol</h2>
+<p>Nodes discover each other using a UDP beacon protocol. When a node
+starts with <code>CLUSTER_ENABLED=true</code>, it begins broadcasting
+beacon packets on the configured broadcast address and port.</p>
+<h3 id="beacon-packet-format">Beacon Packet Format</h3>
+<pre><code>Offset  Size    Field
+0       4       Magic bytes: 0x4F 0x43 0x4D 0x53 (&quot;OCMS&quot;)
+4       1       Protocol version (currently 0x01)
+5       2       Beacon port (big-endian u16)
+7       2       Transport port (big-endian u16)
+9       32      Node ID (UTF-8, zero-padded)
+41      32      HMAC-SHA256 of bytes 0..41 using CLUSTER_SECRET</code></pre>
+<p>Total beacon size: 73 bytes.</p>
+<h3 id="discovery-sequence">Discovery Sequence</h3>
+<ol type="1">
+<li>On startup, the node broadcasts a beacon every
+<code>CLUSTER_BEACON_INTERVAL_MS</code> milliseconds to
+<code>CLUSTER_BEACON_SUBNET:CLUSTER_BEACON_PORT</code>.</li>
+<li>All listening nodes receive the beacon, verify the HMAC against
+their own <code>CLUSTER_SECRET</code>, and extract the sender’s
+transport address.</li>
+<li>If the beacon is from an unknown node, the receiving node initiates
+a post-quantum key exchange (see below) over TCP to the sender’s
+transport address.</li>
+<li>Once the encrypted channel is established, the new node is added to
+the membership list and the gossip protocol takes over.</li>
+<li>In non-broadcast environments (cloud, cross-datacenter), set
+<code>CLUSTER_SEEDS</code> to bootstrap. The node will contact seed
+addresses directly instead of relying on broadcast.</li>
+</ol>
+<p>Beacons continue to be sent after joining to help new nodes discover
+the cluster.</p>
+<h2 id="post-quantum-cryptography">Post-Quantum Cryptography</h2>
+<p>All inter-node communication is encrypted using a hybrid post-quantum
+scheme to protect against both classical and quantum adversaries.</p>
+<h3 id="key-exchange-ml-kem-768">Key Exchange: ML-KEM-768</h3>
+<p>ML-KEM-768 (formerly CRYSTALS-Kyber) is a lattice-based key
+encapsulation mechanism standardized in FIPS 203. It provides IND-CCA2
+security at NIST security level 3 (roughly equivalent to AES-192).</p>
+<p>The handshake proceeds as follows:</p>
+<ol type="1">
+<li><strong>Initiator</strong> generates an ML-KEM-768 keypair
+(ephemeral) and sends the public key (1184 bytes) along with its node ID
+and a challenge derived from <code>CLUSTER_SECRET</code>.</li>
+<li><strong>Responder</strong> verifies the challenge, encapsulates a
+shared secret using the received public key, and sends back the
+ciphertext (1088 bytes) along with its own challenge response.</li>
+<li>Both sides derive the same 256-bit shared secret from the ML-KEM
+decapsulation.</li>
+<li>The shared secret is combined with <code>CLUSTER_SECRET</code> via
+HKDF-SHA256 to produce the final session key, binding the session to the
+cluster identity.</li>
+</ol>
+<h3 id="authenticated-encryption-aes-256-gcm">Authenticated Encryption:
+AES-256-GCM</h3>
+<p>All messages after the handshake are encrypted with AES-256-GCM using
+the derived session key:</p>
+<ul>
+<li><strong>Nonce</strong>: 96-bit, incremented per message (with
+sender-direction bit to avoid reuse)</li>
+<li><strong>AAD (Additional Authenticated Data)</strong>: message type +
+sequence number + sender node ID</li>
+<li><strong>Tag</strong>: 128-bit authentication tag appended to
+ciphertext</li>
+</ul>
+<h3 id="key-rotation">Key Rotation</h3>
+<p>Session keys are rotated every 1 hour or after 2^32 messages,
+whichever comes first. Rotation uses a new ML-KEM-768 encapsulation
+within the existing encrypted channel.</p>
+<h3 id="why-post-quantum">Why Post-Quantum?</h3>
+<p>Mesh clusters may carry sensitive task data (credentials, personal
+information, tool outputs). Harvest-now-decrypt-later attacks make it
+prudent to deploy post-quantum cryptography today, even before
+large-scale quantum computers exist.</p>
+<h2 id="gossip-protocol-swim-membership">Gossip Protocol (SWIM
+Membership)</h2>
+<p>The cluster uses the SWIM (Scalable Weakly-consistent Infection-style
+process group Membership) protocol for membership management and failure
+detection.</p>
+<h3 id="membership-states">Membership States</h3>
+<p>Each node maintains a membership list where every entry is in one of
+three states:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Alive</strong></td>
+<td>Node is healthy and responsive</td>
+</tr>
+<tr>
+<td><strong>Suspect</strong></td>
+<td>Node failed to respond to probes; may be down</td>
+</tr>
+<tr>
+<td><strong>Dead</strong></td>
+<td>Node confirmed unreachable; removed from routing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="protocol-rounds">Protocol Rounds</h3>
+<p>Every <code>CLUSTER_GOSSIP_INTERVAL_MS</code>, each node
+performs:</p>
+<ol type="1">
+<li><strong>Probe</strong> – Select a random alive member and send a
+direct ping. If no ack within <code>CLUSTER_PROBE_TIMEOUT_MS</code>,
+send indirect pings through <code>CLUSTER_INDIRECT_PROBES</code> random
+members. If still no ack, mark the target as Suspect.</li>
+<li><strong>Gossip</strong> – Piggyback membership updates (state
+changes, join/leave events) on probe messages. Each update includes a
+Lamport timestamp for crdt-style conflict resolution.</li>
+<li><strong>Suspicion</strong> – Suspect nodes have
+<code>CLUSTER_SUSPICION_MULT * CLUSTER_GOSSIP_INTERVAL_MS</code> to
+refute by sending an Alive message with a higher incarnation number. If
+not refuted, the node transitions to Dead.</li>
+</ol>
+<h3 id="consistency">Consistency</h3>
+<p>SWIM provides eventual consistency. After a state change, all nodes
+converge within O(log N) gossip rounds, where N is the cluster size.
+With default settings (1s gossip interval, fanout 3), a 64-node cluster
+converges in under 7 seconds.</p>
+<h3 id="join-and-leave">Join and Leave</h3>
+<ul>
+<li><strong>Join</strong>: Triggered by beacon discovery or seed
+contact. The joining node sends a Join message; existing members
+propagate the new membership via gossip.</li>
+<li><strong>Graceful leave</strong>: A node sends a Leave message before
+shutting down. Other nodes immediately mark it Dead without
+suspicion.</li>
+<li><strong>Crash</strong>: Detected by the probe/suspicion mechanism
+described above.</li>
+</ul>
+<h2 id="task-routing-algorithm">Task Routing Algorithm</h2>
+<p>When a task arrives at any node, the router decides whether to
+execute it locally or forward it to a better-suited node. The decision
+is based on a scoring formula applied to each alive node.</p>
+<h3 id="scoring-formula">Scoring Formula</h3>
+<pre><code>score(node) = w_load * (1 - load_ratio)
+            + w_latency * (1 - latency_ratio)
+            + w_capability * capability_match
+            + w_affinity * affinity_bonus
+            + w_locality * locality_bonus</code></pre>
+<p>Where:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 47%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Factor</th>
+<th>Weight (default)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load_ratio</code></td>
+<td><code>w_load = 0.35</code></td>
+<td>Current jobs / max parallel jobs (lower is better)</td>
+</tr>
+<tr>
+<td><code>latency_ratio</code></td>
+<td><code>w_latency = 0.25</code></td>
+<td>P95 RTT to this node / max observed RTT (lower is better)</td>
+</tr>
+<tr>
+<td><code>capability_match</code></td>
+<td><code>w_capability = 0.25</code></td>
+<td>1.0 if node has all required capabilities, 0.0 otherwise</td>
+</tr>
+<tr>
+<td><code>affinity_bonus</code></td>
+<td><code>w_affinity = 0.10</code></td>
+<td>1.0 if the task has session affinity to this node, 0.0
+otherwise</td>
+</tr>
+<tr>
+<td><code>locality_bonus</code></td>
+<td><code>w_locality = 0.05</code></td>
+<td>1.0 if same <code>CLUSTER_REGION</code>, 0.5 if no region set, 0.0
+otherwise</td>
+</tr>
+</tbody>
+</table>
+<h3 id="routing-decision">Routing Decision</h3>
+<ol type="1">
+<li>Compute <code>score(node)</code> for all alive nodes including
+self.</li>
+<li>If the local node’s score is within 10% of the best score, execute
+locally (avoids unnecessary forwarding overhead).</li>
+<li>Otherwise, forward the task to the highest-scoring node over the
+encrypted channel.</li>
+<li>If the target node fails to accept within 5 seconds, fall back to
+local execution.</li>
+<li>Results are returned to the originating node and delivered to the
+original client.</li>
+</ol>
+<h3 id="session-affinity">Session Affinity</h3>
+<p>Tasks that reference an ongoing conversation or job context are
+preferentially routed to the node that holds that context. This avoids
+expensive context transfer between nodes.</p>
+<h2 id="api-endpoints">API Endpoints</h2>
+<p>The mesh cluster exposes monitoring endpoints on the standard web
+gateway.</p>
+<h3 id="get-apimeshstatus">GET /api/mesh/status</h3>
+<p>Returns the cluster status for the local node.</p>
+<p><strong>Response:</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;cluster_enabled&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;node_id&quot;</span><span class="fu">:</span> <span class="st">&quot;node-alpha&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;state&quot;</span><span class="fu">:</span> <span class="st">&quot;alive&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;region&quot;</span><span class="fu">:</span> <span class="st">&quot;us-east-1&quot;</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;capabilities&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;gpu&quot;</span><span class="ot">,</span> <span class="st">&quot;docker&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;uptime_secs&quot;</span><span class="fu">:</span> <span class="dv">86423</span><span class="fu">,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transport&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;bind_addr&quot;</span><span class="fu">:</span> <span class="st">&quot;0.0.0.0:9400&quot;</span><span class="fu">,</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;advertise_addr&quot;</span><span class="fu">:</span> <span class="st">&quot;203.0.113.10:9400&quot;</span><span class="fu">,</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;encryption&quot;</span><span class="fu">:</span> <span class="st">&quot;ML-KEM-768 + AES-256-GCM&quot;</span><span class="fu">,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;protocol_version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;membership&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;alive&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;suspect&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;dead&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;total_seen&quot;</span><span class="fu">:</span> <span class="dv">5</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;routing&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;local_load&quot;</span><span class="fu">:</span> <span class="fl">0.35</span><span class="fu">,</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tasks_routed_out&quot;</span><span class="fu">:</span> <span class="dv">142</span><span class="fu">,</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tasks_routed_in&quot;</span><span class="fu">:</span> <span class="dv">87</span><span class="fu">,</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tasks_failed_over&quot;</span><span class="fu">:</span> <span class="dv">3</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="get-apimeshnodes">GET /api/mesh/nodes</h3>
+<p>Returns the membership list with per-node details.</p>
+<p><strong>Response:</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;nodes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;node_id&quot;</span><span class="fu">:</span> <span class="st">&quot;node-alpha&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;state&quot;</span><span class="fu">:</span> <span class="st">&quot;alive&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;addr&quot;</span><span class="fu">:</span> <span class="st">&quot;203.0.113.10:9400&quot;</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;region&quot;</span><span class="fu">:</span> <span class="st">&quot;us-east-1&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;capabilities&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;gpu&quot;</span><span class="ot">,</span> <span class="st">&quot;docker&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;load_ratio&quot;</span><span class="fu">:</span> <span class="fl">0.35</span><span class="fu">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;latency_ms&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;last_seen&quot;</span><span class="fu">:</span> <span class="st">&quot;2026-03-29T12:34:56Z&quot;</span><span class="fu">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;incarnation&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;is_self&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;node_id&quot;</span><span class="fu">:</span> <span class="st">&quot;node-beta&quot;</span><span class="fu">,</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;state&quot;</span><span class="fu">:</span> <span class="st">&quot;alive&quot;</span><span class="fu">,</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;addr&quot;</span><span class="fu">:</span> <span class="st">&quot;203.0.113.11:9400&quot;</span><span class="fu">,</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;region&quot;</span><span class="fu">:</span> <span class="st">&quot;us-east-1&quot;</span><span class="fu">,</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;capabilities&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;high-memory&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;load_ratio&quot;</span><span class="fu">:</span> <span class="fl">0.12</span><span class="fu">,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;latency_ms&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;last_seen&quot;</span><span class="fu">:</span> <span class="st">&quot;2026-03-29T12:34:55Z&quot;</span><span class="fu">,</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;incarnation&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;is_self&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="post-apimeshnodesnode_iddrain">POST
+/api/mesh/nodes/{node_id}/drain</h3>
+<p>Puts a node into drain mode (stops accepting new routed tasks,
+finishes existing ones). Useful before maintenance.</p>
+<p><strong>Response:</strong></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;node_id&quot;</span><span class="fu">:</span> <span class="st">&quot;node-beta&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;drained&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;remaining_tasks&quot;</span><span class="fu">:</span> <span class="dv">2</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="running-two-nodes-on-the-same-machine">Running Two Nodes on the
+Same Machine</h3>
+<p><strong>Terminal 1 (Node A):</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_ENABLED</span><span class="op">=</span>true</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_SECRET</span><span class="op">=</span><span class="st">&quot;change-me-to-a-strong-shared-secret-at-least-32-characters&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_NODE_ID</span><span class="op">=</span>node-a</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_BIND_PORT</span><span class="op">=</span>9400</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_BEACON_PORT</span><span class="op">=</span>9401</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DATABASE_URL</span><span class="op">=</span>postgres://localhost/optimclaw_a</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">optimclaw</span> onboard   <span class="co"># if not already configured</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run</span></code></pre></div>
+<p><strong>Terminal 2 (Node B):</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_ENABLED</span><span class="op">=</span>true</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_SECRET</span><span class="op">=</span><span class="st">&quot;change-me-to-a-strong-shared-secret-at-least-32-characters&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_NODE_ID</span><span class="op">=</span>node-b</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_BIND_PORT</span><span class="op">=</span>9410</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_BEACON_PORT</span><span class="op">=</span>9401   <span class="co"># same beacon port so they discover each other</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DATABASE_URL</span><span class="op">=</span>postgres://localhost/optimclaw_b</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">optimclaw</span> onboard</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run</span></code></pre></div>
+<p>Within 5 seconds, both nodes should discover each other via UDP
+beacons. Verify by hitting the status endpoint:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> http://localhost:3000/api/mesh/status <span class="kw">|</span> <span class="ex">jq</span> .membership</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># {&quot;alive&quot;: 2, &quot;suspect&quot;: 0, &quot;dead&quot;: 0, &quot;total_seen&quot;: 2}</span></span></code></pre></div>
+<h3 id="running-across-machines">Running Across Machines</h3>
+<p>On each machine, set the same <code>CLUSTER_SECRET</code> and
+either:</p>
+<ul>
+<li>Ensure UDP broadcast works on the local network (same subnet),
+or</li>
+<li>Set <code>CLUSTER_SEEDS</code> to the address of at least one other
+node:</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CLUSTER_SEEDS</span><span class="op">=</span>192.168.1.100:9400</span></code></pre></div>
+<h2 id="security-model">Security Model</h2>
+<h3 id="threat-model">Threat Model</h3>
+<p>The mesh cluster is designed to be secure against:</p>
+<ol type="1">
+<li><strong>Passive eavesdropping</strong> – All traffic is encrypted
+with AES-256-GCM.</li>
+<li><strong>Active MITM</strong> – The ML-KEM-768 handshake is bound to
+<code>CLUSTER_SECRET</code>, preventing interception by parties without
+the pre-shared key.</li>
+<li><strong>Quantum adversaries</strong> – ML-KEM-768 provides
+post-quantum security for key exchange.</li>
+<li><strong>Rogue node injection</strong> – Beacons are authenticated
+with HMAC-SHA256; the handshake requires
+<code>CLUSTER_SECRET</code>.</li>
+<li><strong>Replay attacks</strong> – Nonces are strictly monotonic;
+replayed messages are rejected.</li>
+<li><strong>Partition exploitation</strong> – Nodes degrade to
+independent operation; no split-brain data corruption.</li>
+</ol>
+<h3 id="trust-boundaries">Trust Boundaries</h3>
+<ul>
+<li>All nodes sharing the same <code>CLUSTER_SECRET</code> are in the
+same trust domain.</li>
+<li>A compromised <code>CLUSTER_SECRET</code> means any attacker can
+join the cluster. Rotate the secret and restart all nodes if a
+compromise is suspected.</li>
+<li>Task data (including tool outputs) is encrypted in transit but
+available in plaintext to any node in the cluster. Do not add untrusted
+machines to a cluster that handles sensitive data.</li>
+</ul>
+<h3 id="network-recommendations">Network Recommendations</h3>
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Deployment</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Same LAN</td>
+<td>UDP beacons work out of the box. Use a firewall to restrict beacon
+and transport ports to trusted hosts.</td>
+</tr>
+<tr>
+<td>Cross-datacenter</td>
+<td>Use <code>CLUSTER_SEEDS</code>, disable beacons by setting
+<code>CLUSTER_BEACON_INTERVAL_MS=0</code>, enable TLS
+(<code>CLUSTER_TLS_CERT</code> / <code>CLUSTER_TLS_KEY</code>), and
+restrict access via network ACLs.</td>
+</tr>
+<tr>
+<td>Cloud (AWS/GCP/Azure)</td>
+<td>Use private VPC networking. Set <code>CLUSTER_ADVERTISE_ADDR</code>
+to the private IP. Use security groups to restrict ports 9400-9401.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="nodes-not-discovering-each-other">Nodes not discovering each
+other</h3>
+<ol type="1">
+<li><strong>Check <code>CLUSTER_SECRET</code></strong> – Must be
+identical on all nodes. Even trailing whitespace matters.</li>
+<li><strong>Check beacon port</strong> – All nodes must use the same
+<code>CLUSTER_BEACON_PORT</code>.</li>
+<li><strong>Check UDP broadcast</strong> – Some cloud providers and
+corporate networks block UDP broadcast. Use <code>CLUSTER_SEEDS</code>
+instead.</li>
+<li><strong>Check firewall</strong> – Ports
+<code>CLUSTER_BEACON_PORT</code> (UDP) and
+<code>CLUSTER_BIND_PORT</code> (TCP) must be open.</li>
+<li><strong>Check logs</strong> – Run with
+<code>RUST_LOG=optimclaw::cluster=debug</code> to see beacon
+send/receive events.</li>
+</ol>
+<h3 id="node-stuck-in-suspect-state">Node stuck in Suspect state</h3>
+<ul>
+<li>This typically means the node is slow to respond to probes.</li>
+<li>Increase <code>CLUSTER_PROBE_TIMEOUT_MS</code> on busy nodes.</li>
+<li>Increase <code>CLUSTER_SUSPICION_MULT</code> to give more time
+before declaring a node dead.</li>
+<li>Check if the node is CPU-starved or under heavy I/O load.</li>
+</ul>
+<h3 id="high-task-routing-latency">High task routing latency</h3>
+<ul>
+<li>Check
+<code>curl localhost:3000/api/mesh/nodes | jq '.nodes[].latency_ms'</code>
+to identify slow links.</li>
+<li>Tasks are only routed away from the local node if a remote node
+scores &gt;10% better. If most tasks should stay local, this is expected
+behavior.</li>
+<li>For cross-datacenter deployments, set <code>CLUSTER_REGION</code> on
+each node so the locality bonus keeps tasks close.</li>
+</ul>
+<h3 id="session-key-negotiation-failures">Session key negotiation
+failures</h3>
+<ul>
+<li>Both nodes must support the same protocol version. Ensure all nodes
+are running the same OptimClaw release.</li>
+<li>If using TLS (<code>CLUSTER_TLS_CERT</code>), verify the certificate
+is valid and trusted by the other node.</li>
+<li>Check for clock skew greater than 5 minutes between nodes.</li>
+</ul>
+<h3 id="node-rejoining-after-network-partition">Node rejoining after
+network partition</h3>
+<ul>
+<li>After a partition heals, the previously-dead node sends beacons
+again and is rediscovered.</li>
+<li>The rejoining node increments its incarnation number to override the
+Dead state in other nodes’ membership lists.</li>
+<li>Any tasks that were in-flight to the partitioned node will have
+timed out and been retried locally.</li>
+</ul>
+<h3 id="diagnostic-commands">Diagnostic Commands</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check cluster status</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> http://localhost:3000/api/mesh/status <span class="kw">|</span> <span class="ex">jq</span> .</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># List all known nodes</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> http://localhost:3000/api/mesh/nodes <span class="kw">|</span> <span class="ex">jq</span> .</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Drain a node before maintenance</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-X</span> POST http://localhost:3000/api/mesh/nodes/node-beta/drain <span class="kw">|</span> <span class="ex">jq</span> .</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Watch cluster events in real time</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="va">RUST_LOG</span><span class="op">=</span>optimclaw::cluster=debug <span class="ex">cargo</span> run <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">grep</span> cluster</span></code></pre></div>
+</body>
+</html>
