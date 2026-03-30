@@ -301,6 +301,10 @@ fn convert_messages(messages: &[ChatMessage]) -> (Option<String>, Vec<RigMessage
             }
             crate::llm::Role::User => {
                 if msg.content_parts.is_empty() {
+                    // Skip empty user messages — some providers (e.g. Kimi) reject "content": ""
+                    if msg.content.is_empty() {
+                        continue;
+                    }
                     history.push(RigMessage::user(&msg.content));
                 } else {
                     // Build multimodal user message with text + image parts
@@ -364,6 +368,12 @@ fn convert_messages(messages: &[ChatMessage]) -> (Option<String>, Vec<RigMessage
                         history.push(RigMessage::assistant(&msg.content));
                     }
                 } else {
+                    // Skip empty assistant messages — these occur when thinking-tag stripping
+                    // leaves a blank response; sending "content": "" causes 400 on strict
+                    // OpenAI-compatible providers (e.g. Kimi).
+                    if msg.content.is_empty() {
+                        continue;
+                    }
                     history.push(RigMessage::assistant(&msg.content));
                 }
             }

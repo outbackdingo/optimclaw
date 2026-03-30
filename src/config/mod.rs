@@ -204,19 +204,22 @@ impl Config {
         let _ = dotenvy::dotenv();
         crate::bootstrap::load_optimclaw_env();
 
-        // Load all settings from DB into a Settings struct
-        let mut db_settings = match store.get_all_settings(user_id).await {
-            Ok(map) => Settings::from_db_map(&map),
+        // Start with TOML config as a base (lowest priority among the two).
+        let mut settings = Settings::default();
+        Self::apply_toml_overlay(&mut settings, toml_path)?;
+
+        // Overlay DB settings on top so DB values win over TOML.
+        match store.get_all_settings(user_id).await {
+            Ok(map) => {
+                let db_settings = Settings::from_db_map(&map);
+                settings.merge_from(&db_settings);
+            }
             Err(e) => {
                 tracing::warn!("Failed to load settings from DB, using defaults: {}", e);
-                Settings::default()
             }
         };
 
-        // Overlay TOML config file (values win over DB settings)
-        Self::apply_toml_overlay(&mut db_settings, toml_path)?;
-
-        Self::build(&db_settings).await
+        Self::build(&settings).await
     }
 
     /// Load configuration from environment variables only (no database).

@@ -46,28 +46,64 @@ impl LlmConfig {
         }
     }
 
-    /// Resolve a model name from env var -> settings.selected_model -> hardcoded default.
+    /// Resolve a model name from settings.selected_model -> env var -> hardcoded default.
     fn resolve_model(
         env_var: &str,
         settings: &Settings,
         default: &str,
     ) -> Result<String, ConfigError> {
-        Ok(optional_env(env_var)?
-            .or_else(|| settings.selected_model.clone())
-            .unwrap_or_else(|| default.to_string()))
+        if let Some(model) = settings.selected_model.clone() {
+            Ok(model)
+        } else if let Some(model) = optional_env(env_var)? {
+            Ok(model)
+        } else {
+            Ok(default.to_string())
+        }
     }
 
     pub(crate) fn resolve(settings: &Settings) -> Result<Self, ConfigError> {
         let registry = ProviderRegistry::load();
 
-        // Determine backend: env var > settings > default ("nearai")
-        let backend = if let Some(b) = optional_env("LLM_BACKEND")? {
-            b
-        } else if let Some(ref b) = settings.llm_backend {
-            b.clone()
+        // Determine backend: db settings > env var > default ("nearai")
+        let (backend, backend_source) = if let Some(ref b) = settings.llm_backend {
+            (b.clone(), "db:llm_backend")
+        } else if let Some(b) = optional_env("LLM_BACKEND")? {
+            (b, "env:LLM_BACKEND")
         } else {
-            "nearai".to_string()
+            ("nearai".to_string(), "default")
         };
+        tracing::info!(
+            backend = %backend,
+            source = %backend_source,
+            db_llm_backend = ?settings.llm_backend,
+            "Resolving LLM backend"
+        );
+        // Warn operators when a DB-persisted value silently overrides LLM_BACKEND.
+        if backend_source == "db:llm_backend"
+            && let Ok(env_val) = std::env::var("LLM_BACKEND")
+            && !env_val.is_empty()
+        {
+            tracing::warn!(
+                db_value = %backend,
+                env_value = %env_val,
+                "LLM_BACKEND env var is set but DB setting takes priority. \
+                 Unset llm_backend in the DB (via settings UI) to use the env var."
+            );
+        }
+
+        // Validate the backend is known
+        // Warn operators when a DB-persisted value silently overrides LLM_BACKEND.
+        if backend_source == "db:llm_backend"
+            && let Ok(env_val) = std::env::var("LLM_BACKEND")
+            && !env_val.is_empty()
+        {
+            tracing::warn!(
+                db_value = %backend,
+                env_value = %env_val,
+                "LLM_BACKEND env var is set but DB setting takes priority. \
+                 Unset llm_backend in the DB (via settings UI) to use the env var."
+            );
+        }
 
         // Validate the backend is known
         let backend_lower = backend.to_lowercase();

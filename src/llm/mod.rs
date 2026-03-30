@@ -179,7 +179,7 @@ fn create_registry_provider(
     }
 
     match config.protocol {
-        ProviderProtocol::OpenAiCompletions => create_openai_compat_from_registry(config),
+        ProviderProtocol::OpenAiCompletions => create_openai_compat_from_registry(config, request_timeout_secs),
         ProviderProtocol::Anthropic => create_anthropic_from_registry(config),
         ProviderProtocol::Ollama => create_ollama_from_registry(config),
         ProviderProtocol::GithubCopilot => {
@@ -247,71 +247,65 @@ async fn create_bedrock_provider(config: &LlmConfig) -> Result<Arc<dyn LlmProvid
 
 fn create_openai_compat_from_registry(
     config: &RegistryProviderConfig,
+    request_timeout_secs: u64,
 ) -> Result<Arc<dyn LlmProvider>, LlmError> {
-    use rig::providers::openai;
+    // Use NearAiChatProvider (direct HTTP client) instead of rig-core here.
+    // rig-core serialises message content as JSON arrays
+    // (`[{"type":"text","text":"..."}]`) which many local/simple OpenAI-compatible
+    // servers (e.g. optimllm) reject with a 422.  NearAiChatProvider always
+    // sends content as a plain string, which every compliant server accepts.
+    let nearai_config = NearAiConfig {
+        model: config.model.clone(),
+        base_url: config.base_url.clone(),
+        api_key: config.api_key.clone(),
+        cheap_model: None,
+        fallback_model: None,
+        max_retries: 0,
+        circuit_breaker_threshold: None,
+        circuit_breaker_recovery_secs: 30,
+        response_cache_enabled: false,
+        response_cache_ttl_secs: 3600,
+        response_cache_max_entries: 1000,
+        failover_cooldown_secs: 300,
+        failover_cooldown_threshold: 3,
+        smart_routing_cascade: true,
+    };
 
-    let mut extra_headers = reqwest::header::HeaderMap::new();
-    for (key, value) in &config.extra_headers {
-        let name = match reqwest::header::HeaderName::from_bytes(key.as_bytes()) {
-            Ok(n) => n,
-            Err(e) => {
-                tracing::warn!(header = %key, error = %e, "Skipping extra header: invalid name");
-                continue;
-            }
-        };
-        let val = match reqwest::header::HeaderValue::from_str(value) {
-            Ok(v) => v,
-            Err(e) => {
-                tracing::warn!(header = %key, error = %e, "Skipping extra header: invalid value");
-                continue;
-            }
-        };
-        extra_headers.insert(name, val);
+    // NearAiChatProvider uses the api_key path when api_key is Some, otherwise
+    // it falls through to interactive NearAI OAuth — which we never want here.
+    // Ensure there's always an api_key so we stay on the plain Bearer-token path.
+    // Local servers (e.g. optimllm) ignore the Authorization header entirely.
+    if nearai_config.api_key.is_none() {
+        tracing::warn!(
+            provider = %config.provider_id,
+            "No API key configured for {}; using 'no-key' placeholder. \
+             Requests to auth-required endpoints will fail with 401.",
+            config.provider_id,
+        );
     }
+    let nearai_config = NearAiConfig {
+        api_key: Some(nearai_config.api_key.unwrap_or_else(|| {
+            use secrecy::SecretString;
+            SecretString::new("no-key".into())
+        })),
+        ..nearai_config
+    };
 
-    let api_key = config
-        .api_key
-        .as_ref()
-        .map(|k| k.expose_secret().to_string())
-        .unwrap_or_else(|| {
-            tracing::warn!(
-                provider = %config.provider_id,
-                "No API key configured for {}. Requests will likely fail with 401. \
-                 Check your .env or secrets store.",
-                config.provider_id,
-            );
-            "no-key".to_string()
-        });
-
-    let mut builder = openai::Client::builder().api_key(&api_key);
-    if !config.base_url.is_empty() {
-        builder = builder.base_url(&config.base_url);
-    }
-    if !extra_headers.is_empty() {
-        builder = builder.http_headers(extra_headers);
-    }
-
-    let client: openai::Client = builder.build().map_err(|e| LlmError::RequestFailed {
-        provider: config.provider_id.clone(),
-        reason: format!("Failed to create OpenAI-compatible client: {e}"),
-    })?;
-
-    // Use CompletionsClient (Chat Completions API) instead of the default
-    // Client (Responses API). The Responses API path in rig-core handles
-    // tool results differently, which breaks OptimClaw's tool call flow.
-    let client = client.completions_api();
-    let model = client.completion_model(&config.model);
+    // Session manager is required by the constructor signature but never used:
+    // NearAiChatProvider only calls the session manager when api_key is None,
+    // and we always set one above.
+    let session = Arc::new(SessionManager::new(crate::llm::SessionConfig::default()));
 
     tracing::debug!(
         provider = %config.provider_id,
         model = %config.model,
         base_url = %config.base_url,
-        "Using OpenAI-compatible provider"
+        "Using OpenAI-compatible provider (plain-string content)"
     );
 
-    let adapter = RigAdapter::new(model, &config.model)
-        .with_unsupported_params(config.unsupported_params.clone());
-    Ok(Arc::new(adapter))
+    // flatten_tool_messages=false: send proper role:"tool" messages (OpenAI spec).
+    let provider = NearAiChatProvider::new_with_options(nearai_config, session, false, request_timeout_secs)?;
+    Ok(Arc::new(provider))
 }
 
 fn create_anthropic_from_registry(
